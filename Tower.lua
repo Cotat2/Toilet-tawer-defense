@@ -1,5 +1,5 @@
 -- Script para "Carnival Chaos: Toilet Tower Defense"
--- Con el Auto-win corregido
+-- Con el Auto-win corregido para el enemigo "Inodoro"
 
 -- Variables principales
 local Players = game:GetService("Players")
@@ -23,10 +23,8 @@ local function toggleAutoWin(state)
             if autoWinEnabled then
                 -- Bucle a través de todos los hijos del workspace para encontrar enemigos
                 for _, child in ipairs(workspace:GetChildren()) do
-                    if child:IsA("Model") and child:FindFirstChild("Humanoid") then
-                        -- El nombre del enemigo podría ser "Cameraman", "Speaker", etc.
-                        -- Esta es una forma genérica de encontrar cualquier modelo con un Humanoid
-                        -- y eliminarlo.
+                    -- Ahora busca específicamente por el nombre "Inodoro"
+                    if child.Name == "Inodoro" then
                         child:Destroy()
                     end
                 end
