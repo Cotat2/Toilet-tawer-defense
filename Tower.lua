@@ -1,5 +1,5 @@
 -- Script para "Carnival Chaos: Toilet Tower Defense" (ID: 13775256536)
--- Con modo discreto para evitar detección de UI
+-- Con menú que aparece al inicio y se puede ocultar con icono
 
 -- Configuración del juego
 local GAME_ID = 13775256536
@@ -128,18 +128,38 @@ local function createMenu()
         autoWinButton.Text = "Auto-win: " .. (autoWinEnabled and "ON" or "OFF")
     end)
 
-    return screenGui
-end
+    local hideButton = Instance.new("TextButton")
+    hideButton.Size = UDim2.new(0, 20, 0, 20)
+    hideButton.Position = UDim2.new(1, -25, 0, 5)
+    hideButton.Text = "-"
+    hideButton.Font = Enum.Font.SourceSansBold
+    hideButton.TextSize = 20
+    hideButton.TextColor3 = Color3.new(1, 1, 1)
+    hideButton.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+    hideButton.Parent = mainFrame
+    
+    local showButton = Instance.new("TextButton")
+    showButton.Size = UDim2.new(0, 50, 0, 50)
+    showButton.Position = UDim2.new(0.5, -25, 0.5, -25)
+    showButton.Text = "CH"
+    showButton.Font = Enum.Font.SourceSansBold
+    showButton.TextSize = 20
+    showButton.TextColor3 = Color3.new(1, 1, 1)
+    showButton.BackgroundColor3 = Color3.new(0.5, 0.2, 0.2)
+    showButton.Visible = false
+    showButton.Parent = screenGui
 
--- Función para mostrar/ocultar el menú
-local function toggleMenu()
-    if menuFrame then
-        menuFrame:Destroy()
-        menuFrame = nil
-    else
-        menuFrame = createMenu()
-        menuFrame.Parent = LocalPlayer:WaitForChild("PlayerGui")
-    end
+    hideButton.MouseButton1Click:Connect(function()
+        mainFrame.Visible = false
+        showButton.Visible = true
+    end)
+
+    showButton.MouseButton1Click:Connect(function()
+        mainFrame.Visible = true
+        showButton.Visible = false
+    end)
+
+    return screenGui
 end
 
 -- Esperar 5 segundos para que el juego cargue completamente
@@ -147,10 +167,6 @@ wait(5)
 
 -- Comprobación del ID del juego
 if game.PlaceId == GAME_ID then
-    -- Escuchar la tecla G para mostrar/ocultar el menú
-    UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
-        if input.KeyCode == Enum.KeyCode.G and not gameProcessedEvent then
-            toggleMenu()
-        end
-    end)
+    menuFrame = createMenu()
+    menuFrame.Parent = LocalPlayer:WaitForChild("PlayerGui")
 end
