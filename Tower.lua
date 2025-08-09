@@ -1,5 +1,5 @@
 -- Script para "Carnival Chaos: Toilet Tower Defense"
--- Con corrección para ocultar el menú de forma segura
+-- Con el Auto-win corregido
 
 -- Variables principales
 local Players = game:GetService("Players")
@@ -15,18 +15,19 @@ local autoWinEnabled = false
 local autoWinConnection = nil
 local menuHidden = false
 
--- Función principal para el Auto-win
+-- Función principal para el Auto-win (CORREGIDA)
 local function toggleAutoWin(state)
     autoWinEnabled = state
     if state then
         autoWinConnection = RunService.Stepped:Connect(function()
             if autoWinEnabled then
-                local enemies = workspace:FindFirstChild("Enemies")
-                if enemies then
-                    for _, enemy in ipairs(enemies:GetChildren()) do
-                        if enemy:IsA("Model") and enemy:FindFirstChild("Humanoid") then
-                            enemy:Destroy()
-                        end
+                -- Bucle a través de todos los hijos del workspace para encontrar enemigos
+                for _, child in ipairs(workspace:GetChildren()) do
+                    if child:IsA("Model") and child:FindFirstChild("Humanoid") then
+                        -- El nombre del enemigo podría ser "Cameraman", "Speaker", etc.
+                        -- Esta es una forma genérica de encontrar cualquier modelo con un Humanoid
+                        -- y eliminarlo.
+                        child:Destroy()
                     end
                 end
             end
@@ -124,8 +125,13 @@ local function createMenu()
     autoWinButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
     autoWinButton.Parent = mainTab
     autoWinButton.MouseButton1Click:Connect(function()
-        toggleAutoWin(not autoWinEnabled)
-        autoWinButton.Text = "Auto-win: " .. (autoWinEnabled and "ON" or "OFF")
+        if autoWinEnabled then
+            toggleAutoWin(false)
+            autoWinButton.Text = "Auto-win: OFF"
+        else
+            toggleAutoWin(true)
+            autoWinButton.Text = "Auto-win: ON"
+        end
     end)
 
     local hideButton = Instance.new("TextButton")
@@ -150,13 +156,13 @@ local function createMenu()
     showButton.Parent = screenGui
 
     hideButton.MouseButton1Click:Connect(function()
-        mainFrame.Position = UDim2.new(-1, 0, -1, 0) -- Mover fuera de la pantalla
+        mainFrame.Position = UDim2.new(-1, 0, -1, 0)
         showButton.Visible = true
         menuHidden = true
     end)
 
     showButton.MouseButton1Click:Connect(function()
-        mainFrame.Position = UDim2.new(0.5, -250, 0.5, -200) -- Devolver a la posición original
+        mainFrame.Position = UDim2.new(0.5, -250, 0.5, -200)
         showButton.Visible = false
         menuHidden = false
     end)
