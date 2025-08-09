@@ -1,12 +1,14 @@
 -- Script para "Carnival Chaos: Toilet Tower Defense"
--- Sin comprobación de ID de juego para solucionar el problema del menú
+-- Con corrección para ocultar el menú correctamente
 
 -- Variables principales
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
-local menuFrame = nil -- La referencia al menú
+local screenGui = nil -- Referencia al ScreenGui principal
+local mainFrame = nil -- Referencia al marco principal del menú
+local showButton = nil -- Referencia al botón para mostrar
 
 -- Estado de las funciones
 local autoWinEnabled = false
@@ -40,10 +42,10 @@ end
 local function createMenu()
     local playerGui = LocalPlayer:WaitForChild("PlayerGui")
     
-    local screenGui = Instance.new("ScreenGui")
+    screenGui = Instance.new("ScreenGui")
     screenGui.Name = "HubMenu"
 
-    local mainFrame = Instance.new("Frame")
+    mainFrame = Instance.new("Frame")
     mainFrame.Size = UDim2.new(0, 500, 0, 400)
     mainFrame.Position = UDim2.new(0.5, -250, 0.5, -200)
     mainFrame.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
@@ -135,7 +137,7 @@ local function createMenu()
     hideButton.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
     hideButton.Parent = mainFrame
     
-    local showButton = Instance.new("TextButton")
+    showButton = Instance.new("TextButton")
     showButton.Size = UDim2.new(0, 50, 0, 50)
     showButton.Position = UDim2.new(0.5, -25, 0.5, -25)
     showButton.Text = "CH"
@@ -162,5 +164,6 @@ end
 -- Esperar 5 segundos para que el juego cargue completamente
 wait(5)
 
-menuFrame = createMenu()
-menuFrame.Parent = LocalPlayer:WaitForChild("PlayerGui")
+-- Lógica de inicio
+screenGui = createMenu()
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
