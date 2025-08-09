@@ -1,5 +1,5 @@
 -- Script para "Carnival Chaos: Toilet Tower Defense"
--- Con el Auto-win corregido para el enemigo "Inodoro"
+-- Con función de Auto-Skip para pasar oleadas
 
 -- Variables principales
 local Players = game:GetService("Players")
@@ -11,29 +11,46 @@ local mainFrame = nil -- Referencia al marco principal del menú
 local showButton = nil -- Referencia al botón para mostrar
 
 -- Estado de las funciones
-local autoWinEnabled = false
-local autoWinConnection = nil
+local autoSkipEnabled = false
+local autoSkipConnection = nil
 local menuHidden = false
 
--- Función principal para el Auto-win (CORREGIDA)
-local function toggleAutoWin(state)
-    autoWinEnabled = state
+-- Función principal para el Auto-Skip
+local function toggleAutoSkip(state)
+    autoSkipEnabled = state
     if state then
-        autoWinConnection = RunService.Stepped:Connect(function()
-            if autoWinEnabled then
-                -- Bucle a través de todos los hijos del workspace para encontrar enemigos
-                for _, child in ipairs(workspace:GetChildren()) do
-                    -- Ahora busca específicamente por el nombre "Inodoro"
-                    if child.Name == "Inodoro" then
-                        child:Destroy()
+        autoSkipConnection = RunService.Stepped:Connect(function()
+            if autoSkipEnabled then
+                -- Búsqueda de un RemoteEvent para pasar de oleada
+                local skipWaveEvent = nil
+                -- Intenta encontrar un evento remoto por nombre
+                for _, service in pairs(game:GetChildren()) do
+                    if service:IsA("RemoteEvent") then
+                        if string.find(service.Name:lower(), "wave") or string.find(service.Name:lower(), "skip") then
+                            skipWaveEvent = service
+                            break
+                        end
+                    end
+                end
+                
+                if skipWaveEvent then
+                    skipWaveEvent:FireServer()
+                else
+                    -- Si no encuentra el evento, intenta un método más genérico
+                    -- Este método puede no funcionar en todos los juegos
+                    local waveModule = require(game.ReplicatedStorage:WaitForChild("GameData").Modules:WaitForChild("WaveModule"))
+                    if waveModule and waveModule.nextWave then
+                        pcall(function()
+                            waveModule.nextWave()
+                        end)
                     end
                 end
             end
         end)
     else
-        if autoWinConnection then
-            autoWinConnection:Disconnect()
-            autoWinConnection = nil
+        if autoSkipConnection then
+            autoSkipConnection:Disconnect()
+            autoSkipConnection = nil
         end
     end
 end
@@ -116,19 +133,19 @@ local function createMenu()
     end)
 
     -- MAIN TAB
-    local autoWinButton = Instance.new("TextButton")
-    autoWinButton.Size = UDim2.new(0, 180, 0, 40)
-    autoWinButton.Position = UDim2.new(0, 20, 0, 20)
-    autoWinButton.Text = "Auto-win: OFF"
-    autoWinButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
-    autoWinButton.Parent = mainTab
-    autoWinButton.MouseButton1Click:Connect(function()
-        if autoWinEnabled then
-            toggleAutoWin(false)
-            autoWinButton.Text = "Auto-win: OFF"
+    local autoSkipButton = Instance.new("TextButton")
+    autoSkipButton.Size = UDim2.new(0, 180, 0, 40)
+    autoSkipButton.Position = UDim2.new(0, 20, 0, 20)
+    autoSkipButton.Text = "Auto-skip: OFF"
+    autoSkipButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
+    autoSkipButton.Parent = mainTab
+    autoSkipButton.MouseButton1Click:Connect(function()
+        if autoSkipEnabled then
+            toggleAutoSkip(false)
+            autoSkipButton.Text = "Auto-skip: OFF"
         else
-            toggleAutoWin(true)
-            autoWinButton.Text = "Auto-win: ON"
+            toggleAutoSkip(true)
+            autoSkipButton.Text = "Auto-skip: ON"
         end
     end)
 
