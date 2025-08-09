@@ -1,5 +1,5 @@
 -- Script para "Carnival Chaos: Toilet Tower Defense"
--- Con corrección para ocultar el menú correctamente
+-- Con corrección para ocultar el menú de forma segura
 
 -- Variables principales
 local Players = game:GetService("Players")
@@ -13,6 +13,7 @@ local showButton = nil -- Referencia al botón para mostrar
 -- Estado de las funciones
 local autoWinEnabled = false
 local autoWinConnection = nil
+local menuHidden = false
 
 -- Función principal para el Auto-win
 local function toggleAutoWin(state)
@@ -149,13 +150,15 @@ local function createMenu()
     showButton.Parent = screenGui
 
     hideButton.MouseButton1Click:Connect(function()
-        mainFrame.Visible = false
+        mainFrame.Position = UDim2.new(-1, 0, -1, 0) -- Mover fuera de la pantalla
         showButton.Visible = true
+        menuHidden = true
     end)
 
     showButton.MouseButton1Click:Connect(function()
-        mainFrame.Visible = true
+        mainFrame.Position = UDim2.new(0.5, -250, 0.5, -200) -- Devolver a la posición original
         showButton.Visible = false
+        menuHidden = false
     end)
 
     return screenGui
