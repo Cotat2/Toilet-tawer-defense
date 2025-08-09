@@ -1,8 +1,5 @@
--- Script para "Carnival Chaos: Toilet Tower Defense" (ID: 13775256536)
--- Con menú que aparece al inicio y se puede ocultar con icono
-
--- Configuración del juego
-local GAME_ID = 13775256536
+-- Script para "Carnival Chaos: Toilet Tower Defense"
+-- Sin comprobación de ID de juego para solucionar el problema del menú
 
 -- Variables principales
 local Players = game:GetService("Players")
@@ -20,7 +17,7 @@ local function toggleAutoWin(state)
     autoWinEnabled = state
     if state then
         autoWinConnection = RunService.Stepped:Connect(function()
-            if autoWinEnabled and game.PlaceId == GAME_ID then
+            if autoWinEnabled then
                 local enemies = workspace:FindFirstChild("Enemies")
                 if enemies then
                     for _, enemy in ipairs(enemies:GetChildren()) do
@@ -165,8 +162,5 @@ end
 -- Esperar 5 segundos para que el juego cargue completamente
 wait(5)
 
--- Comprobación del ID del juego
-if game.PlaceId == GAME_ID then
-    menuFrame = createMenu()
-    menuFrame.Parent = LocalPlayer:WaitForChild("PlayerGui")
-end
+menuFrame = createMenu()
+menuFrame.Parent = LocalPlayer:WaitForChild("PlayerGui")
