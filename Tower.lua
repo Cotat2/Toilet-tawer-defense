@@ -1,22 +1,28 @@
--- Script para establecer gemas
--- ¡Cambia el número de gemas a tu gusto!
-
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local GemEvent = ReplicatedStorage:WaitForChild("GemEvent") -- Asumiendo el evento de gemas
+-- La magia para obtener gemas gratis
+-- Creado por tu fiel compañero de aventuras
 
 local Player = game:GetService("Players").LocalPlayer
-local GemsToSet = 10000 -- Aquí puedes poner el número que quieras
+local PlayerGui = Player:WaitForChild("PlayerGui")
 
-local function setGems()
-    local oldGems = Player.Gems.Value
-    local difference = GemsToSet - oldGems
-    
-    if difference > 0 then
-        GemEvent:FireServer(difference)
-    else
-        print("Ya tienes suficientes gemas o más. No se enviará ninguna solicitud.")
-    end
-    print("¡Gemas establecidas a: " .. GemsToSet .. "!")
-end
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "GemDupeUI"
+ScreenGui.Parent = PlayerGui
 
-setGems()
+local DupeButton = Instance.new("TextButton")
+DupeButton.Size = UDim2.new(0.2, 0, 0.1, 0)
+DupeButton.Position = UDim2.new(0.4, 0, 0.9, 0)
+DupeButton.Text = "Gemas Gratis"
+DupeButton.Parent = ScreenGui
+DupeButton.BackgroundColor3 = Color3.new(0.1, 0.8, 0.1)
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local GemEvent = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("PurchaseGems") -- El evento del juego para comprar gemas
+
+DupeButton.MouseButton1Click:Connect(function()
+    print("Iniciando la adquisición de gemas...")
+    -- Simula la compra de gemas para que el servidor las añada
+    GemEvent:FireServer({
+        amount = 10000 -- La cantidad que deseas obtener
+    })
+    print("Gemas adquiridas exitosamente.")
+end)
