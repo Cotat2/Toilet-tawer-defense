@@ -19,6 +19,8 @@ local baseLocation = nil
 local gemsDupeEnabled = false
 local fastAttackEnabled = false
 local slowEnemiesEnabled = false
+local slowEnemiesConnection = nil
+local fastAttackConnection = nil
 
 -- Variables para la Invisibilidad Falsa
 local ghostClone = nil
@@ -223,28 +225,41 @@ end
 local function toggleFastAttack(state)
     fastAttackEnabled = state
     if state then
-        -- Este es un ejemplo. Necesitarías el nombre real del RemoteEvent
-        local remoteEvent = game:GetService("ReplicatedStorage"):FindFirstChild("AttackEvent")
-        if remoteEvent then
-            remoteEvent:FireServer("RapidFire")
-        end
-    end
-end
-
--- NUEVA FUNCIÓN: Ralentizar enemigos
-local function toggleSlowEnemies(state)
-    slowEnemiesEnabled = state
-    if state then
-        -- Loop para buscar enemigos y ralentizarlos
-        RunService.Stepped:Connect(function()
-            if slowEnemiesEnabled then
-                for _, part in ipairs(workspace:GetDescendants()) do
-                    if part:IsA("Humanoid") and part.Parent.Name ~= LocalPlayer.Name then
-                        part.WalkSpeed = 0.5 -- 0.5 es un valor muy bajo
+        fastAttackConnection = RunService.Heartbeat:Connect(function()
+            for _, unit in pairs(workspace:GetDescendants()) do
+                if unit.Name == "Dark Speakerman Guy" and unit:IsA("Model") then
+                    local attackRemote = unit:FindFirstChild("AttackRemote")
+                    if attackRemote and attackRemote:IsA("RemoteEvent") then
+                        attackRemote:FireServer("Attack")
                     end
                 end
             end
         end)
+    else
+        if fastAttackConnection then
+            fastAttackConnection:Disconnect()
+            fastAttackConnection = nil
+        end
+    end
+end
+
+-- NUEVA FUNCIÓN: Ralentizar enemigos (Avanzada)
+local function toggleSlowEnemies(state)
+    slowEnemiesEnabled = state
+    if state then
+        slowEnemiesConnection = RunService.Heartbeat:Connect(function(step)
+            for _, obj in pairs(game.Workspace:GetDescendants()) do
+                local humanoid = obj:FindFirstChildOfClass("Humanoid")
+                if humanoid and obj.Name ~= LocalPlayer.Name and humanoid.WalkSpeed > 0 then
+                    humanoid.WalkSpeed = humanoid.WalkSpeed * 0.5
+                end
+            end
+        end)
+    else
+        if slowEnemiesConnection then
+            slowEnemiesConnection:Disconnect()
+            slowEnemiesConnection = nil
+        end
     end
 end
 
