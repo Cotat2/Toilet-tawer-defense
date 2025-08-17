@@ -16,6 +16,7 @@ local advancedNoclipEnabled = false
 local teleportToBaseEnabled = false
 local noclipLoop = nil
 local baseLocation = nil
+local gemsDupeEnabled = false
 
 -- Variables para la Invisibilidad Falsa
 local ghostClone = nil
@@ -209,6 +210,21 @@ local function toggleTeleportToBase(state)
     end
 end
 
+-- FUNCIÓN NUEVA: Dupe de Gemas
+local function toggleGemsDupe()
+    if not gemsDupeEnabled then
+        local remoteEvent = game:GetService("ReplicatedStorage"):WaitForChild("GemsEvent")
+        for i = 1, 1000 do -- Duplicamos 1000 veces
+            remoteEvent:FireServer("AddGems", 999999) -- Solicitamos gemas al servidor
+        end
+        gemsDupeEnabled = true
+        return "Gemas duplicadas. ¡Disfruta!"
+    else
+        gemsDupeEnabled = false
+        return "Duplicador de gemas desactivado."
+    end
+end
+
 
 -- Función que se encarga de crear el menú y su lógica
 local function createMenu()
@@ -308,7 +324,17 @@ local function createMenu()
 
     -- Player Tab (Vacío)
     
-    -- Stealer Tab (Vacío)
+    -- Stealer Tab
+    local gemsDupeButton = Instance.new("TextButton")
+    gemsDupeButton.Size = UDim2.new(0, 180, 0, 40)
+    gemsDupeButton.Position = UDim2.new(0, 20, 0, 20)
+    gemsDupeButton.Text = "Dupe Gemas: OFF"
+    gemsDupeButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
+    gemsDupeButton.Parent = stealerTab
+    gemsDupeButton.MouseButton1Click:Connect(function()
+        toggleGemsDupe()
+        gemsDupeButton.Text = "Dupe Gemas: " .. (gemsDupeEnabled and "ON" or "OFF")
+    end)
     
     local hideButton = Instance.new("TextButton")
     hideButton.Size = UDim2.new(0, 20, 0, 20)
