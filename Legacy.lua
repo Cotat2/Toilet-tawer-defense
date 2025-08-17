@@ -1,4 +1,4 @@
--- Script con menú estilo Hub para Delta (Versión 3.5 - Resurrección total)
+-- Script con menú estilo Hub para Delta (Versión Final 2.8 - Teleport a Base)
 
 -- Variables principales
 local Players = game:GetService("Players")
@@ -14,9 +14,6 @@ local fakeInvisibilityEnabled = false
 local speedHackEnabled = false
 local advancedNoclipEnabled = false
 local teleportToBaseEnabled = false
-local godModeEnabled = false
-local flyModeEnabled = false
-local flyVector = Vector3.new(0, 0, 0)
 local noclipLoop = nil
 local baseLocation = nil
 
@@ -212,49 +209,6 @@ local function toggleTeleportToBase(state)
     end
 end
 
--- FUNCIÓN NUEVA: Modo Dios
-local function toggleGodMode(state)
-    godModeEnabled = state
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-    if state then
-        humanoid.MaxHealth = math.huge
-        humanoid.Health = humanoid.MaxHealth
-    else
-        humanoid.MaxHealth = 100
-        humanoid.Health = 100
-    end
-end
-
--- FUNCIÓN NUEVA: Fly
-local function toggleFlyMode(state)
-    flyModeEnabled = state
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    local humanoid = character:WaitForChild("Humanoid")
-    local camera = workspace.CurrentCamera
-    local speed = 2.0
-    
-    if state then
-        humanoid.WalkSpeed = 0
-        humanoid.PlatformStand = true
-        RunService.Heartbeat:Connect(function()
-            if flyModeEnabled then
-                local move = Vector3.new(0,0,0)
-                if UserInputService:IsKeyDown(Enum.KeyCode.W) then move = move + camera.CFrame.lookVector end
-                if UserInputService:IsKeyDown(Enum.KeyCode.S) then move = move - camera.CFrame.lookVector end
-                if UserInputService:IsKeyDown(Enum.KeyCode.A) then move = move - camera.CFrame.rightVector end
-                if UserInputService:IsKeyDown(Enum.KeyCode.D) then move = move + camera.CFrame.rightVector end
-                if UserInputService:IsKeyDown(Enum.KeyCode.Space) then move = move + Vector3.new(0, 1, 0) end
-                if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then move = move - Vector3.new(0, 1, 0) end
-                humanoidRootPart.CFrame = humanoidRootPart.CFrame + move.Unit * speed
-            end
-        end)
-    else
-        humanoid.WalkSpeed = 16
-        humanoid.PlatformStand = false
-    end
-end
 
 -- Función que se encarga de crear el menú y su lógica
 local function createMenu()
@@ -345,118 +299,17 @@ local function createMenu()
     stealerTab.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
     stealerTab.Parent = contentFrame
     stealerTab.Visible = false
-    
-    local helperTab = Instance.new("Frame")
-    helperTab.Size = UDim2.new(1, 0, 1, 0)
-    helperTab.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
-    helperTab.Parent = contentFrame
-    helperTab.Visible = false
-
 
     mainButton.MouseButton1Click:Connect(function() changeTab(mainTab) end)
     playerButton.MouseButton1Click:Connect(function() changeTab(playerTab) end)
     stealerButton.MouseButton1Click:Connect(function() changeTab(stealerTab) end)
-    helperButton.MouseButton1Click:Connect(function() changeTab(helperTab) end)
 
     changeTab(mainTab)
 
-    -- Player Tab
-    local multipleJumpButton = Instance.new("TextButton")
-    multipleJumpButton.Size = UDim2.new(0, 180, 0, 40)
-    multipleJumpButton.Position = UDim2.new(0, 20, 0, 20)
-    multipleJumpButton.Text = "Salto Múltiple: OFF"
-    multipleJumpButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
-    multipleJumpButton.Parent = playerTab
-    multipleJumpButton.MouseButton1Click:Connect(function()
-        local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
-        toggleMultipleJump(not multipleJumpEnabled, humanoid)
-        multipleJumpButton.Text = "Salto Múltiple: " .. (multipleJumpEnabled and "ON" or "OFF")
-    end)
-
-    local wallhackButton = Instance.new("TextButton")
-    wallhackButton.Size = UDim2.new(0, 180, 0, 40)
-    wallhackButton.Position = UDim2.new(0, 20, 0, 80)
-    wallhackButton.Text = "Wallhack (ESP): OFF"
-    wallhackButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
-    wallhackButton.Parent = playerTab
-    wallhackButton.MouseButton1Click:Connect(function()
-        toggleWallhack(not wallhackEnabled)
-        wallhackButton.Text = "Wallhack (ESP): " .. (wallhackEnabled and "ON" or "OFF")
-    end)
-
-    local ghostModeButton = Instance.new("TextButton")
-    ghostModeButton.Size = UDim2.new(0, 180, 0, 40)
-    ghostModeButton.Position = UDim2.new(0, 20, 0, 140)
-    ghostModeButton.Text = "Invisibilidad Falsa: OFF"
-    ghostModeButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
-    ghostModeButton.Parent = playerTab
-    ghostModeButton.MouseButton1Click:Connect(function()
-        toggleFakeInvisibility(not fakeInvisibilityEnabled)
-        ghostModeButton.Text = "Invisibilidad Falsa: " .. (fakeInvisibilityEnabled and "ON" or "OFF")
-    end)
+    -- Player Tab (Vacío)
     
-    local speedHackButton = Instance.new("TextButton")
-    speedHackButton.Size = UDim2.new(0, 180, 0, 40)
-    speedHackButton.Position = UDim2.new(0, 20, 0, 200)
-    speedHackButton.Text = "Speed Hack: OFF"
-    speedHackButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
-    speedHackButton.Parent = playerTab
-    speedHackButton.MouseButton1Click:Connect(function()
-        toggleSpeedHack(not speedHackEnabled)
-        speedHackButton.Text = "Speed Hack: " .. (speedHackEnabled and "ON" or "OFF")
-    end)
+    -- Stealer Tab (Vacío)
     
-    -- Stealer Tab
-    local advancedNoclipButton = Instance.new("TextButton")
-    advancedNoclipButton.Size = UDim2.new(0, 180, 0, 40)
-    advancedNoclipButton.Position = UDim2.new(0, 20, 0, 20)
-    advancedNoclipButton.Text = "Noclip Avanzado: OFF"
-    advancedNoclipButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
-    advancedNoclipButton.Parent = stealerTab
-    advancedNoclipButton.MouseButton1Click:Connect(function()
-        toggleAdvancedNoclip(not advancedNoclipEnabled)
-        advancedNoclipButton.Text = "Noclip Avanzado: " .. (advancedNoclipEnabled and "ON" or "OFF")
-    end)
-
-    local teleportToBaseButton = Instance.new("TextButton")
-    teleportToBaseButton.Size = UDim2.new(0, 180, 0, 40)
-    teleportToBaseButton.Position = UDim2.new(0, 20, 0, 80)
-    teleportToBaseButton.Text = "Guardar Base"
-    teleportToBaseButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
-    teleportToBaseButton.Parent = stealerTab
-    teleportToBaseButton.MouseButton1Click:Connect(function()
-        if baseLocation == nil then
-            toggleTeleportToBase(true)
-            teleportToBaseButton.Text = "Teleport a Base"
-            teleportToBaseButton.BackgroundColor3 = Color3.new(0.2, 0.6, 0.2)
-        else
-            toggleTeleportToBase(false)
-        end
-    end)
-    
-    -- Helper Tab
-    local godModeButton = Instance.new("TextButton")
-    godModeButton.Size = UDim2.new(0, 180, 0, 40)
-    godModeButton.Position = UDim2.new(0, 20, 0, 20)
-    godModeButton.Text = "Modo Dios: OFF"
-    godModeButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
-    godModeButton.Parent = helperTab
-    godModeButton.MouseButton1Click:Connect(function()
-        toggleGodMode(not godModeEnabled)
-        godModeButton.Text = "Modo Dios: " .. (godModeEnabled and "ON" or "OFF")
-    end)
-
-    local flyModeButton = Instance.new("TextButton")
-    flyModeButton.Size = UDim2.new(0, 180, 0, 40)
-    flyModeButton.Position = UDim2.new(0, 20, 0, 80)
-    flyModeButton.Text = "Fly Mode: OFF"
-    flyModeButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
-    flyModeButton.Parent = helperTab
-    flyModeButton.MouseButton1Click:Connect(function()
-        toggleFlyMode(not flyModeEnabled)
-        flyModeButton.Text = "Fly Mode: " .. (flyModeEnabled and "ON" or "OFF")
-    end)
-
     local hideButton = Instance.new("TextButton")
     hideButton.Size = UDim2.new(0, 20, 0, 20)
     hideButton.Position = UDim2.new(1, -25, 0, 5)
