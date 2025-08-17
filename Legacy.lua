@@ -275,60 +275,40 @@ local function toggleGlitchEnemies(state)
     end
 end
 
--- Function to find the money value in leaderstats dynamically
-local function findMoneyValue()
-    local playerStats = LocalPlayer:FindFirstChild("leaderstats")
-    if playerStats then
-        -- We will look for a NumberValue that is likely the currency
-        for _, stat in pairs(playerStats:GetChildren()) do
-            if stat:IsA("NumberValue") then
-                -- A simple heuristic: check for common names, or just take the first one
-                -- In this case, we will just take the first one we find.
-                return stat
-            end
-        end
-    end
-    return nil
-end
-
 -- NEW FUNCTION: Add unlimited cash with visual feedback
 local function addCashWithFeedback(button)
-    local cashValue = findMoneyValue()
-    if cashValue then
-        -- Find the cash UI element (best guess)
-        local cashLabel = nil
-        for _, descendant in pairs(LocalPlayer.PlayerGui:GetDescendants()) do
-            if descendant:IsA("TextLabel") and (descendant.Text:match("$%d+") or descendant.Name:match("Cash") or descendant.Text:match("%d+")) then
-                cashLabel = descendant
-                break
-            end
-        end
-
-        -- Change button text to ON
-        button.Text = "Unlimited Cash: ON"
-        
-        if cashLabel then
-            local originalText = cashLabel.Text
-            cashLabel.Text = "Mortadela"
-
-            -- Wait for 2 seconds
-            wait(2)
-
-            -- Set the cash value
-            cashValue.Value = 1000000
-
-            -- The UI should update automatically, but if not, we force it
-            if cashLabel then
-                -- This will format the number, so it might not be a perfect match
-                -- We'll just put the value as a number to be safe.
-                cashLabel.Text = "1,000,000"
+    local leaderstats = LocalPlayer:WaitForChild("leaderstats")
+    if leaderstats then
+        local cashValue = leaderstats:WaitForChild("Cash")
+        if cashValue then
+            -- Change button text to ON
+            button.Text = "Unlimited Cash: ON"
+            
+            -- Find the cash UI element (best guess)
+            local cashLabel = nil
+            for _, descendant in pairs(LocalPlayer.PlayerGui:GetDescendants()) do
+                if descendant:IsA("TextLabel") and (string.find(descendant.Text, "$") or descendant.Name == "Cash") then
+                    cashLabel = descendant
+                    break
+                end
             end
             
-            return "Unlimited cash added. Build non-stop!"
-        else
-            -- If UI element not found, just set the cash value directly
-            cashValue.Value = 1000000
-            return "Could not find cash UI. Cash has been set to 1,000,000."
+            if cashLabel then
+                local originalText = cashLabel.Text
+                cashLabel.Text = "Mortadela"
+                
+                -- Wait for 2 seconds
+                wait(2)
+                
+                -- Set the cash value
+                cashValue.Value = 1000000
+                
+                return "Unlimited cash added. Build non-stop!"
+            else
+                -- If UI element not found, just set the cash value directly
+                cashValue.Value = 1000000
+                return "Could not find cash UI. Cash has been set to 1,000,000."
+            end
         end
     end
     return "Could not find cash value. Try again."
