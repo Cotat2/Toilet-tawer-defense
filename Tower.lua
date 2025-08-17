@@ -1,18 +1,22 @@
--- La interfaz gráfica de duplicación
--- ¡Directo a dominar el juego!
+-- La interfaz gráfica de la foto, sin funciones
+-- Creada para que tengas el mejor menú del juego
 
 local Player = game:GetService("Players").LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
--- Creamos la interfaz principal
+local MainUI = Instance.new("ScreenGui")
+MainUI.Name = "CustomUI"
+MainUI.Parent = PlayerGui
+
+-- Main Frame (el recuadro principal)
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0.3, 0, 0.4, 0)
 MainFrame.Position = UDim2.new(0.35, 0, 0.3, 0)
 MainFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
 MainFrame.BorderSizePixel = 2
-MainFrame.Parent = PlayerGui
+MainFrame.Parent = MainUI
 
--- Título del menú
+-- Title (el texto de "Hax para TLD")
 local TitleLabel = Instance.new("TextLabel")
 TitleLabel.Size = UDim2.new(1, 0, 0.1, 0)
 TitleLabel.Text = "Hax para TLD"
@@ -22,64 +26,48 @@ TitleLabel.TextColor3 = Color3.new(1, 1, 1)
 TitleLabel.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 TitleLabel.Parent = MainFrame
 
--- Botón para duplicar gemas
-local DupeGemsButton = Instance.new("TextButton")
-DupeGemsButton.Size = UDim2.new(0.8, 0, 0.15, 0)
-DupeGemsButton.Position = UDim2.new(0.1, 0, 0.2, 0)
-DupeGemsButton.Text = "Dupear Gemas"
-DupeGemsButton.Font = Enum.Font.SourceSansBold
-DupeGemsButton.FontSize = Enum.FontSize.Size18
-DupeGemsButton.TextColor3 = Color3.new(1, 1, 1)
-DupeGemsButton.BackgroundColor3 = Color3.new(0.1, 0.8, 0.1)
-DupeGemsButton.Parent = MainFrame
+-- Botón 1 (el verde)
+local Button1 = Instance.new("TextButton")
+Button1.Size = UDim2.new(0.8, 0, 0.15, 0)
+Button1.Position = UDim2.new(0.1, 0, 0.2, 0)
+Button1.Text = "Dupear Gemas"
+Button1.Font = Enum.Font.SourceSansBold
+Button1.FontSize = Enum.FontSize.Size18
+Button1.TextColor3 = Color3.new(1, 1, 1)
+Button1.BackgroundColor3 = Color3.new(0.1, 0.8, 0.1)
+Button1.Parent = MainFrame
 
--- Botón para dar unidades
-local GiveUnitsButton = Instance.new("TextButton")
-GiveUnitsButton.Size = UDim2.new(0.8, 0, 0.15, 0)
-GiveUnitsButton.Position = UDim2.new(0.1, 0, 0.4, 0)
-GiveUnitsButton.Text = "Obtener Unidades (Súper)"
-GiveUnitsButton.Font = Enum.Font.SourceSansBold
-GiveUnitsButton.FontSize = Enum.FontSize.Size18
-GiveUnitsButton.TextColor3 = Color3.new(1, 1, 1)
-GiveUnitsButton.BackgroundColor3 = Color3.new(0.1, 0.1, 0.8)
-GiveUnitsButton.Parent = MainFrame
+-- Botón 2 (el azul)
+local Button2 = Instance.new("TextButton")
+Button2.Size = UDim2.new(0.8, 0, 0.15, 0)
+Button2.Position = UDim2.new(0.1, 0, 0.4, 0)
+Button2.Text = "Obtener Unidades (Súper)"
+Button2.Font = Enum.Font.SourceSansBold
+Button2.FontSize = Enum.FontSize.Size18
+Button2.TextColor3 = Color3.new(1, 1, 1)
+Button2.BackgroundColor3 = Color3.new(0.1, 0.1, 0.8)
+Button2.Parent = MainFrame
 
--- Botón para saltar oleadas
-local SkipWavesButton = Instance.new("TextButton")
-SkipWavesButton.Size = UDim2.new(0.8, 0, 0.15, 0)
-SkipWavesButton.Position = UDim2.new(0.1, 0, 0.6, 0)
-SkipWavesButton.Text = "Saltar Oleadas"
-SkipWavesButton.Font = Enum.Font.SourceSansBold
-SkipWavesButton.FontSize = Enum.FontSize.Size18
-SkipWavesButton.TextColor3 = Color3.new(1, 1, 1)
-SkipWavesButton.BackgroundColor3 = Color3.new(0.8, 0.5, 0.1)
-SkipWavesButton.Parent = MainFrame
+-- Botón 3 (el naranja)
+local Button3 = Instance.new("TextButton")
+Button3.Size = UDim2.new(0.8, 0, 0.15, 0)
+Button3.Position = UDim2.new(0.1, 0, 0.6, 0)
+Button3.Text = "Saltar Oleadas"
+Button3.Font = Enum.Font.SourceSansBold
+Button3.FontSize = Enum.FontSize.Size18
+Button3.TextColor3 = Color3.new(1, 1, 1)
+Button3.BackgroundColor3 = Color3.new(0.8, 0.5, 0.1)
+Button3.Parent = MainFrame
 
--- Eventos y lógica de los botones
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RemoteEvents = ReplicatedStorage:WaitForChild("RemoteEvents")
-local GemEvent = RemoteEvents:WaitForChild("PurchaseGems")
-local UnitEvent = RemoteEvents:WaitForChild("GiveUnit")
-local SkipEvent = RemoteEvents:WaitForChild("SkipWaves")
-
--- Lógica para el botón de gemas
-DupeGemsButton.MouseButton1Click:Connect(function()
-    print("Iniciando el proceso de duplicación de gemas...")
-    GemEvent:FireServer({ amount = 10000 })
-    print("¡Gemas duplicadas!")
+-- Simulación de los eventos para que no dé errores
+Button1.MouseButton1Click:Connect(function()
+    print("El botón de Dupear Gemas ha sido presionado. No hay ninguna función asignada.")
 end)
 
--- Lógica para el botón de unidades
-GiveUnitsButton.MouseButton1Click:Connect(function()
-    print("Intentando obtener unidades...")
-    -- Este evento es más complejo y se necesita un poco de suerte
-    UnitEvent:FireServer("Ultrare", 1) -- "Ultrare" es un nombre ficticio
-    print("Unidades obtenidas!")
+Button2.MouseButton1Click:Connect(function()
+    print("El botón de Obtener Unidades ha sido presionado. No hay ninguna función asignada.")
 end)
 
--- Lógica para el botón de saltar oleadas
-SkipWavesButton.MouseButton1Click:Connect(function()
-    print("Saltando oleadas...")
-    SkipEvent:FireServer(1) -- Salta 1 oleada por cada clic
-    print("Oleada saltada.")
+Button3.MouseButton1Click:Connect(function()
+    print("El botón de Saltar Oleadas ha sido presionado. No hay ninguna función asignada.")
 end)
