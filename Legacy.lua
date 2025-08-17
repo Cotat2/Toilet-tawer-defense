@@ -17,6 +17,8 @@ local teleportToBaseEnabled = false
 local noclipLoop = nil
 local baseLocation = nil
 local gemsDupeEnabled = false
+local fastAttackEnabled = false
+local slowEnemiesEnabled = false
 
 -- Variables para la Invisibilidad Falsa
 local ghostClone = nil
@@ -188,11 +190,62 @@ local function toggleAdvancedNoclip(state)
     end
 end
 
+-- FUNCIÓN NUEVA: Teleport a Base
+local function toggleTeleportToBase(state)
+    teleportToBaseEnabled = state
+
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+    if state then
+        -- Guardar la posición actual
+        baseLocation = humanoidRootPart.CFrame
+        return "Base guardada."
+    else
+        -- Teletransportar a la posición guardada
+        if baseLocation then
+            humanoidRootPart.CFrame = baseLocation
+            return "Teletransporte a base realizado."
+        else
+            return "No hay una base guardada."
+        end
+    end
+end
+
 -- FUNCIÓN NUEVA: Dupe de Gemas
 local function toggleGemsDupe()
     local remoteEvent = game:GetService("ReplicatedStorage"):WaitForChild("GemsEvent")
     remoteEvent:FireServer("AddGems", 100) -- Duplicamos 100 gemas
     return "100 gemas duplicadas. ¡Añadiendo gemas!"
+end
+
+-- NUEVA FUNCIÓN: Velocidad de ataque casi instantánea
+local function toggleFastAttack(state)
+    fastAttackEnabled = state
+    if state then
+        -- Este es un ejemplo. Necesitarías el nombre real del RemoteEvent
+        local remoteEvent = game:GetService("ReplicatedStorage"):FindFirstChild("AttackEvent")
+        if remoteEvent then
+            remoteEvent:FireServer("RapidFire")
+        end
+    end
+end
+
+-- NUEVA FUNCIÓN: Ralentizar enemigos
+local function toggleSlowEnemies(state)
+    slowEnemiesEnabled = state
+    if state then
+        -- Loop para buscar enemigos y ralentizarlos
+        RunService.Stepped:Connect(function()
+            if slowEnemiesEnabled then
+                for _, part in ipairs(workspace:GetDescendants()) do
+                    if part:IsA("Humanoid") and part.Parent.Name ~= LocalPlayer.Name then
+                        part.WalkSpeed = 0.5 -- 0.5 es un valor muy bajo
+                    end
+                end
+            end
+        end)
+    end
 end
 
 
@@ -313,6 +366,28 @@ local function createMenu()
     gemsDupeButton.MouseButton1Click:Connect(function()
         local message = toggleGemsDupe()
         print(message)
+    end)
+
+    local fastAttackButton = Instance.new("TextButton")
+    fastAttackButton.Size = UDim2.new(0, 180, 0, 40)
+    fastAttackButton.Position = UDim2.new(0, 20, 0, 70)
+    fastAttackButton.Text = "Velocidad de ataque: OFF"
+    fastAttackButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
+    fastAttackButton.Parent = helperTab
+    fastAttackButton.MouseButton1Click:Connect(function()
+        toggleFastAttack(not fastAttackEnabled)
+        fastAttackButton.Text = "Velocidad de ataque: " .. (fastAttackEnabled and "ON" or "OFF")
+    end)
+    
+    local slowEnemiesButton = Instance.new("TextButton")
+    slowEnemiesButton.Size = UDim2.new(0, 180, 0, 40)
+    slowEnemiesButton.Position = UDim2.new(0, 20, 0, 120)
+    slowEnemiesButton.Text = "Enemigos lentos: OFF"
+    slowEnemiesButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
+    slowEnemiesButton.Parent = helperTab
+    slowEnemiesButton.MouseButton1Click:Connect(function()
+        toggleSlowEnemies(not slowEnemiesEnabled)
+        slowEnemiesButton.Text = "Enemigos lentos: " .. (slowEnemiesEnabled and "ON" or "OFF")
     end)
 
     local hideButton = Instance.new("TextButton")
