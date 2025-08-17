@@ -18,9 +18,10 @@ local noclipLoop = nil
 local baseLocation = nil
 local gemsDupeEnabled = false
 local fastAttackEnabled = false
-local slowEnemiesEnabled = false
-local slowEnemiesConnection = nil
+local glitchEnemiesEnabled = false
+local glitchEnemiesConnection = nil
 local fastAttackConnection = nil
+local enemyPositions = {} -- Table to store enemy positions
 
 -- Variables for Fake Invisibility
 local ghostClone = nil
@@ -243,38 +244,48 @@ local function toggleFastAttack(state)
     end
 end
 
--- NEW FUNCTION: Freeze Enemies
-local function toggleSlowEnemies(state)
-    slowEnemiesEnabled = state
+-- NEW FUNCTION: Glitch Enemies (more subtle slow effect)
+local function toggleGlitchEnemies(state)
+    glitchEnemiesEnabled = state
     if state then
-        slowEnemiesConnection = RunService.Heartbeat:Connect(function()
+        glitchEnemiesConnection = RunService.Heartbeat:Connect(function()
             for _, obj in pairs(game.Workspace:GetDescendants()) do
                 local humanoid = obj:FindFirstChildOfClass("Humanoid")
-                -- Check if it's an enemy based on its name or parent
-                if humanoid and obj.Name ~= LocalPlayer.Name and humanoid.WalkSpeed > 0 then
-                    humanoid.WalkSpeed = 0 -- Freeze their movement
+                local humanoidRootPart = obj:FindFirstChild("HumanoidRootPart")
+                -- Check if it's an enemy
+                if humanoid and humanoidRootPart and obj.Name ~= LocalPlayer.Name then
+                    if not enemyPositions[obj] then
+                        -- Store the initial position
+                        enemyPositions[obj] = humanoidRootPart.CFrame
+                    else
+                        -- Teleport the enemy back to its previous position
+                        humanoidRootPart.CFrame = enemyPositions[obj]
+                        -- Update the position for the next frame
+                        enemyPositions[obj] = humanoidRootPart.CFrame
+                    end
                 end
             end
         end)
     else
-        if slowEnemiesConnection then
-            slowEnemiesConnection:Disconnect()
-            slowEnemiesConnection = nil
+        if glitchEnemiesConnection then
+            glitchEnemiesConnection:Disconnect()
+            glitchEnemiesConnection = nil
+            enemyPositions = {} -- Clear the table when disabled
         end
     end
 end
 
--- NEW FUNCTION: Add unlimited money
+-- NEW FUNCTION: Add unlimited cash
 local function addMoney()
     local playerStats = LocalPlayer:FindFirstChild("leaderstats")
     if playerStats then
-        local money = playerStats:FindFirstChild("Money")
-        if money then
-            money.Value = math.huge -- Give an inexhaustible amount
-            return "Unlimited money added. Build non-stop!"
+        local cash = playerStats:FindFirstChild("Cash")
+        if cash then
+            cash.Value = math.huge -- Give an inexhaustible amount
+            return "Unlimited cash added. Build non-stop!"
         end
     end
-    return "Could not find money value. Try again."
+    return "Could not find cash value. Try again."
 end
 
 
@@ -389,7 +400,7 @@ local function createMenu()
     local moneyButton = Instance.new("TextButton")
     moneyButton.Size = UDim2.new(0, 180, 0, 40)
     moneyButton.Position = UDim2.new(0, 20, 0, 20)
-    moneyButton.Text = "Unlimited Money"
+    moneyButton.Text = "Unlimited Cash"
     moneyButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
     moneyButton.Parent = helperTab
     moneyButton.MouseButton1Click:Connect(function()
@@ -419,15 +430,15 @@ local function createMenu()
         fastAttackButton.Text = "Instant Attack Speed: " .. (fastAttackEnabled and "ON" or "OFF")
     end)
     
-    local slowEnemiesButton = Instance.new("TextButton")
-    slowEnemiesButton.Size = UDim2.new(0, 180, 0, 40)
-    slowEnemiesButton.Position = UDim2.new(0, 20, 0, 170)
-    slowEnemiesButton.Text = "Frozen Enemies: OFF"
-    slowEnemiesButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
-    slowEnemiesButton.Parent = helperTab
-    slowEnemiesButton.MouseButton1Click:Connect(function()
-        toggleSlowEnemies(not slowEnemiesEnabled)
-        slowEnemiesButton.Text = "Frozen Enemies: " .. (slowEnemiesEnabled and "ON" or "OFF")
+    local glitchEnemiesButton = Instance.new("TextButton")
+    glitchEnemiesButton.Size = UDim2.new(0, 180, 0, 40)
+    glitchEnemiesButton.Position = UDim2.new(0, 20, 0, 170)
+    glitchEnemiesButton.Text = "Glitch Enemies: OFF"
+    glitchEnemiesButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
+    glitchEnemiesButton.Parent = helperTab
+    glitchEnemiesButton.MouseButton1Click:Connect(function()
+        toggleGlitchEnemies(not glitchEnemiesEnabled)
+        glitchEnemiesButton.Text = "Glitch Enemies: " .. (glitchEnemiesEnabled and "ON" or "OFF")
     end)
 
     local hideButton = Instance.new("TextButton")
