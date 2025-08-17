@@ -1,13 +1,13 @@
--- Script con menú estilo Hub para Delta (Versión Final 2.8 - Teleport a Base)
+-- Script with a Hub-style menu for Delta (Final Version 2.8 - Teleport to Base)
 
--- Variables principales
+-- Main variables
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local lastMenuInstance = nil
 
--- Estado de las funciones
+-- Function states
 local multipleJumpEnabled = false
 local wallhackEnabled = false
 local fakeInvisibilityEnabled = false
@@ -22,10 +22,10 @@ local slowEnemiesEnabled = false
 local slowEnemiesConnection = nil
 local fastAttackConnection = nil
 
--- Variables para la Invisibilidad Falsa
+-- Variables for Fake Invisibility
 local ghostClone = nil
 
--- Función para manejar el Salto Múltiple
+-- Function to handle Multiple Jump
 local function handleJump(humanoid)
     if multipleJumpEnabled then
         if humanoid and humanoid.Health > 0 then
@@ -34,7 +34,7 @@ local function handleJump(humanoid)
     end
 end
 
--- Función para activar o desactivar el Salto Múltiple
+-- Function to toggle Multiple Jump
 local function toggleMultipleJump(state, humanoid)
     multipleJumpEnabled = state
     if state then
@@ -46,7 +46,7 @@ local function toggleMultipleJump(state, humanoid)
     end
 end
 
--- Función para activar o desactivar el Wallhack (ESP)
+-- Function to toggle Wallhack (ESP)
 local function toggleWallhack(state)
     wallhackEnabled = state
     if state then
@@ -85,18 +85,18 @@ local function toggleWallhack(state)
     end
 end
 
--- Función para la Invisibilidad Falsa
+-- Function for Fake Invisibility
 local function toggleFakeInvisibility(state)
     fakeInvisibilityEnabled = state
     local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     
     if state then
-        -- Creamos un clon visual del avatar
+        -- Create a visual clone of the avatar
         ghostClone = character:Clone()
         ghostClone.Name = "GhostClone"
         ghostClone.Parent = workspace
         
-        -- Hacemos el clon inamovible
+        -- Make the clone unmovable
         for _, part in pairs(ghostClone:GetChildren()) do
             if part:IsA("BasePart") then
                 part.Anchored = true
@@ -104,14 +104,14 @@ local function toggleFakeInvisibility(state)
             end
         end
         
-        -- Hacemos que el avatar real sea invisible localmente
+        -- Make the real avatar invisible locally
         for _, part in pairs(character:GetChildren()) do
             if part:IsA("BasePart") then
                 part.LocalTransparencyModifier = 1
             end
         end
     else
-        -- Eliminamos el clon y restauramos la visibilidad del avatar real
+        -- Delete the clone and restore the visibility of the real avatar
         if ghostClone then
             ghostClone:Destroy()
             ghostClone = nil
@@ -124,7 +124,7 @@ local function toggleFakeInvisibility(state)
     end
 end
 
--- Función para activar o desactivar el Speed Hack
+-- Function to toggle Speed Hack
 local function toggleSpeedHack(state)
     speedHackEnabled = state
     local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
@@ -137,7 +137,7 @@ local function toggleSpeedHack(state)
     end
 end
 
--- FUNCIÓN DE NOCLIP AVANZADO
+-- ADVANCED NOCLIP FUNCTION
 local function toggleAdvancedNoclip(state)
     advancedNoclipEnabled = state
 
@@ -148,7 +148,7 @@ local function toggleAdvancedNoclip(state)
     local speed = 1.5 
 
     if state then
-        -- Desactiva la colisión localmente
+        -- Disable collision locally
         for _, part in pairs(character:GetChildren()) do
             if part:IsA("BasePart") then
                 part.CanCollide = false
@@ -178,7 +178,7 @@ local function toggleAdvancedNoclip(state)
             end
         end)
     else
-        -- Restaura la colisión, la velocidad y desconecta el loop
+        -- Restore collision, speed, and disconnect the loop
         for _, part in pairs(character:GetChildren()) do
             if part:IsA("BasePart") then
                 part.CanCollide = true
@@ -192,7 +192,7 @@ local function toggleAdvancedNoclip(state)
     end
 end
 
--- FUNCIÓN NUEVA: Teleport a Base
+-- NEW FUNCTION: Teleport to Base
 local function toggleTeleportToBase(state)
     teleportToBaseEnabled = state
 
@@ -200,28 +200,28 @@ local function toggleTeleportToBase(state)
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
     if state then
-        -- Guardar la posición actual
+        -- Save the current position
         baseLocation = humanoidRootPart.CFrame
-        return "Base guardada."
+        return "Base saved."
     else
-        -- Teletransportar a la posición guardada
+        -- Teleport to the saved position
         if baseLocation then
             humanoidRootPart.CFrame = baseLocation
-            return "Teletransporte a base realizado."
+            return "Teleport to base completed."
         else
-            return "No hay una base guardada."
+            return "No base saved."
         end
     end
 end
 
--- FUNCIÓN NUEVA: Dupe de Gemas
+-- NEW FUNCTION: Gem Dupe
 local function toggleGemsDupe()
     local remoteEvent = game:GetService("ReplicatedStorage"):WaitForChild("GemsEvent")
-    remoteEvent:FireServer("AddGems", 100) -- Duplicamos 100 gemas
-    return "100 gemas duplicadas. ¡Añadiendo gemas!"
+    remoteEvent:FireServer("AddGems", 100) -- Duplicate 100 gems
+    return "100 gems duplicated. Adding gems!"
 end
 
--- NUEVA FUNCIÓN: Velocidad de ataque casi instantánea
+-- NEW FUNCTION: Instant Attack Speed
 local function toggleFastAttack(state)
     fastAttackEnabled = state
     if state then
@@ -243,15 +243,16 @@ local function toggleFastAttack(state)
     end
 end
 
--- NUEVA FUNCIÓN: Ralentizar enemigos (Avanzada)
+-- NEW FUNCTION: Freeze Enemies
 local function toggleSlowEnemies(state)
     slowEnemiesEnabled = state
     if state then
-        slowEnemiesConnection = RunService.Heartbeat:Connect(function(step)
+        slowEnemiesConnection = RunService.Heartbeat:Connect(function()
             for _, obj in pairs(game.Workspace:GetDescendants()) do
                 local humanoid = obj:FindFirstChildOfClass("Humanoid")
+                -- Check if it's an enemy based on its name or parent
                 if humanoid and obj.Name ~= LocalPlayer.Name and humanoid.WalkSpeed > 0 then
-                    humanoid.WalkSpeed = humanoid.WalkSpeed * 0.5
+                    humanoid.WalkSpeed = 0 -- Freeze their movement
                 end
             end
         end)
@@ -263,15 +264,21 @@ local function toggleSlowEnemies(state)
     end
 end
 
--- NUEVA FUNCIÓN: Añadir dinero
+-- NEW FUNCTION: Add unlimited money
 local function addMoney()
-    local moneyRemoteEvent = game:GetService("ReplicatedStorage"):WaitForChild("MoneyEvent")
-    moneyRemoteEvent:FireServer("AddMoney", 10000000)
-    return "10,000,000 de dinero añadido. ¡Construye sin parar!"
+    local playerStats = LocalPlayer:FindFirstChild("leaderstats")
+    if playerStats then
+        local money = playerStats:FindFirstChild("Money")
+        if money then
+            money.Value = math.huge -- Give an inexhaustible amount
+            return "Unlimited money added. Build non-stop!"
+        end
+    end
+    return "Could not find money value. Try again."
 end
 
 
--- Función que se encarga de crear el menú y su lógica
+-- Function that creates the menu and its logic
 local function createMenu()
     local playerGui = LocalPlayer:WaitForChild("PlayerGui")
     if playerGui:FindFirstChild("HubMenu") then
@@ -374,15 +381,15 @@ local function createMenu()
 
     changeTab(mainTab)
 
-    -- Player Tab (Vacío)
+    -- Player Tab (Empty)
     
-    -- Stealer Tab (Vacío)
+    -- Stealer Tab (Empty)
     
     -- Helper Tab
     local moneyButton = Instance.new("TextButton")
     moneyButton.Size = UDim2.new(0, 180, 0, 40)
     moneyButton.Position = UDim2.new(0, 20, 0, 20)
-    moneyButton.Text = "Dinero Infinito"
+    moneyButton.Text = "Unlimited Money"
     moneyButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
     moneyButton.Parent = helperTab
     moneyButton.MouseButton1Click:Connect(function()
@@ -393,7 +400,7 @@ local function createMenu()
     local gemsDupeButton = Instance.new("TextButton")
     gemsDupeButton.Size = UDim2.new(0, 180, 0, 40)
     gemsDupeButton.Position = UDim2.new(0, 20, 0, 70)
-    gemsDupeButton.Text = "Dupe Gemas"
+    gemsDupeButton.Text = "Gem Dupe"
     gemsDupeButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
     gemsDupeButton.Parent = helperTab
     gemsDupeButton.MouseButton1Click:Connect(function()
@@ -404,23 +411,23 @@ local function createMenu()
     local fastAttackButton = Instance.new("TextButton")
     fastAttackButton.Size = UDim2.new(0, 180, 0, 40)
     fastAttackButton.Position = UDim2.new(0, 20, 0, 120)
-    fastAttackButton.Text = "Velocidad de ataque: OFF"
+    fastAttackButton.Text = "Instant Attack Speed: OFF"
     fastAttackButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
     fastAttackButton.Parent = helperTab
     fastAttackButton.MouseButton1Click:Connect(function()
         toggleFastAttack(not fastAttackEnabled)
-        fastAttackButton.Text = "Velocidad de ataque: " .. (fastAttackEnabled and "ON" or "OFF")
+        fastAttackButton.Text = "Instant Attack Speed: " .. (fastAttackEnabled and "ON" or "OFF")
     end)
     
     local slowEnemiesButton = Instance.new("TextButton")
     slowEnemiesButton.Size = UDim2.new(0, 180, 0, 40)
     slowEnemiesButton.Position = UDim2.new(0, 20, 0, 170)
-    slowEnemiesButton.Text = "Enemigos lentos: OFF"
+    slowEnemiesButton.Text = "Frozen Enemies: OFF"
     slowEnemiesButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
     slowEnemiesButton.Parent = helperTab
     slowEnemiesButton.MouseButton1Click:Connect(function()
         toggleSlowEnemies(not slowEnemiesEnabled)
-        slowEnemiesButton.Text = "Enemigos lentos: " .. (slowEnemiesEnabled and "ON" or "OFF")
+        slowEnemiesButton.Text = "Frozen Enemies: " .. (slowEnemiesEnabled and "ON" or "OFF")
     end)
 
     local hideButton = Instance.new("TextButton")
