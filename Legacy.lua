@@ -263,6 +263,13 @@ local function toggleSlowEnemies(state)
     end
 end
 
+-- NUEVA FUNCIÓN: Añadir dinero
+local function addMoney()
+    local moneyRemoteEvent = game:GetService("ReplicatedStorage"):WaitForChild("MoneyEvent")
+    moneyRemoteEvent:FireServer("AddMoney", 10000000)
+    return "10,000,000 de dinero añadido. ¡Construye sin parar!"
+end
+
 
 -- Función que se encarga de crear el menú y su lógica
 local function createMenu()
@@ -372,9 +379,20 @@ local function createMenu()
     -- Stealer Tab (Vacío)
     
     -- Helper Tab
+    local moneyButton = Instance.new("TextButton")
+    moneyButton.Size = UDim2.new(0, 180, 0, 40)
+    moneyButton.Position = UDim2.new(0, 20, 0, 20)
+    moneyButton.Text = "Dinero Infinito"
+    moneyButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
+    moneyButton.Parent = helperTab
+    moneyButton.MouseButton1Click:Connect(function()
+        local message = addMoney()
+        print(message)
+    end)
+    
     local gemsDupeButton = Instance.new("TextButton")
     gemsDupeButton.Size = UDim2.new(0, 180, 0, 40)
-    gemsDupeButton.Position = UDim2.new(0, 20, 0, 20)
+    gemsDupeButton.Position = UDim2.new(0, 20, 0, 70)
     gemsDupeButton.Text = "Dupe Gemas"
     gemsDupeButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
     gemsDupeButton.Parent = helperTab
@@ -385,7 +403,7 @@ local function createMenu()
 
     local fastAttackButton = Instance.new("TextButton")
     fastAttackButton.Size = UDim2.new(0, 180, 0, 40)
-    fastAttackButton.Position = UDim2.new(0, 20, 0, 70)
+    fastAttackButton.Position = UDim2.new(0, 20, 0, 120)
     fastAttackButton.Text = "Velocidad de ataque: OFF"
     fastAttackButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
     fastAttackButton.Parent = helperTab
@@ -396,7 +414,7 @@ local function createMenu()
     
     local slowEnemiesButton = Instance.new("TextButton")
     slowEnemiesButton.Size = UDim2.new(0, 180, 0, 40)
-    slowEnemiesButton.Position = UDim2.new(0, 20, 0, 120)
+    slowEnemiesButton.Position = UDim2.new(0, 20, 0, 170)
     slowEnemiesButton.Text = "Enemigos lentos: OFF"
     slowEnemiesButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
     slowEnemiesButton.Parent = helperTab
