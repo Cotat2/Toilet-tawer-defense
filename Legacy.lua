@@ -316,26 +316,35 @@ local function createMenu()
     stealerTab.Parent = contentFrame
     stealerTab.Visible = false
 
+    local helperTab = Instance.new("Frame")
+    helperTab.Size = UDim2.new(1, 0, 1, 0)
+    helperTab.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+    helperTab.Parent = contentFrame
+    helperTab.Visible = false
+
     mainButton.MouseButton1Click:Connect(function() changeTab(mainTab) end)
     playerButton.MouseButton1Click:Connect(function() changeTab(playerTab) end)
     stealerButton.MouseButton1Click:Connect(function() changeTab(stealerTab) end)
+    helperButton.MouseButton1Click:Connect(function() changeTab(helperTab) end)
 
     changeTab(mainTab)
 
     -- Player Tab (Vacío)
     
-    -- Stealer Tab
+    -- Stealer Tab (Vacío)
+    
+    -- Helper Tab
     local gemsDupeButton = Instance.new("TextButton")
     gemsDupeButton.Size = UDim2.new(0, 180, 0, 40)
     gemsDupeButton.Position = UDim2.new(0, 20, 0, 20)
     gemsDupeButton.Text = "Dupe Gemas: OFF"
     gemsDupeButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
-    gemsDupeButton.Parent = stealerTab
+    gemsDupeButton.Parent = helperTab
     gemsDupeButton.MouseButton1Click:Connect(function()
         toggleGemsDupe()
         gemsDupeButton.Text = "Dupe Gemas: " .. (gemsDupeEnabled and "ON" or "OFF")
     end)
-    
+
     local hideButton = Instance.new("TextButton")
     hideButton.Size = UDim2.new(0, 20, 0, 20)
     hideButton.Position = UDim2.new(1, -25, 0, 5)
