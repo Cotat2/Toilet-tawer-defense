@@ -1,14 +1,37 @@
--- La magia para duplicar las gemas
--- Creado por un genio para un crack
+-- La interfaz gráfica de gemas
+-- Creado para dominar el juego
 
 local Player = game:GetService("Players").LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
 
-wait(5) -- Esperamos a que el juego cargue bien
+local MainUI = Instance.new("ScreenGui")
+MainUI.Name = "DupeGemsUI"
+MainUI.Parent = PlayerGui
 
--- Simulamos una duplicación de datos
-Player:SetAttribute("Gems", 999999999) -- Esto engaña al juego para que crea que tenemos un número de gemas gigante
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0.2, 0, 0.1, 0)
+MainFrame.Position = UDim2.new(0.8, 0, 0.9, 0)
+MainFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+MainFrame.BorderSizePixel = 2
+MainFrame.Parent = MainUI
 
-wait(1)
+local DupeButton = Instance.new("TextButton")
+DupeButton.Size = UDim2.new(0.9, 0, 0.8, 0)
+DupeButton.Position = UDim2.new(0.05, 0, 0.1, 0)
+DupeButton.Text = "Dupear Gemas"
+DupeButton.Font = Enum.Font.SourceSansBold
+DupeButton.FontSize = Enum.FontSize.Size18
+DupeButton.TextColor3 = Color3.new(1, 1, 1)
+DupeButton.BackgroundColor3 = Color3.new(0.1, 0.8, 0.1)
+DupeButton.Parent = MainFrame
 
--- Esto es para que el juego guarde la información que le pasamos
-game:GetService("DataStoreService"):GetDataStore("PlayerGems"):SetAsync(Player.UserId, Player:GetAttribute("Gems"))
+DupeButton.MouseButton1Click:Connect(function()
+    print("Iniciando el proceso de duplicación de gemas...")
+    
+    local PlayerGems = Player.Gems
+    
+    -- Se simula un envío de datos para duplicar las gemas
+    PlayerGems.Value = PlayerGems.Value + 10000 
+    
+    print("¡Gemas duplicadas!")
+end)
