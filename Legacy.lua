@@ -188,52 +188,13 @@ local function toggleAdvancedNoclip(state)
     end
 end
 
--- FUNCIÓN NUEVA: Teleport a Base
-local function toggleTeleportToBase(state)
-    teleportToBaseEnabled = state
-
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-
-    if state then
-        -- Guardar la posición actual
-        baseLocation = humanoidRootPart.CFrame
-        return "Base guardada."
-    else
-        -- Teletransportar a la posición guardada
-        if baseLocation then
-            humanoidRootPart.CFrame = baseLocation
-            return "Teletransporte a base realizado."
-        else
-            return "No hay una base guardada."
-        end
-    end
-end
-
--- FUNCIÓN NUEVA: Dupe de Gemas y Teleport
+-- FUNCIÓN NUEVA: Dupe de Gemas
 local function toggleGemsDupe()
-    if not gemsDupeEnabled then
-        local remoteEvent = game:GetService("ReplicatedStorage"):WaitForChild("GemsEvent")
-        for i = 1, 1000 do 
-            remoteEvent:FireServer("AddGems", 999999) 
-        end
-        gemsDupeEnabled = true
-        return "Gemas duplicadas. Reiniciando el juego..."
-    else
-        gemsDupeEnabled = false
-        return "Duplicador de gemas desactivado."
-    end
+    local remoteEvent = game:GetService("ReplicatedStorage"):WaitForChild("GemsEvent")
+    remoteEvent:FireServer("AddGems", 100) -- Duplicamos 100 gemas
+    return "100 gemas duplicadas. ¡Añadiendo gemas!"
 end
 
--- Función para reiniciar el juego
-local function reloadGame()
-    local success, err = pcall(function()
-        game:GetService("TeleportService"):Teleport(game.PlaceId, LocalPlayer)
-    end)
-    if not success then
-        warn("Error al reiniciar el juego: " .. err)
-    end
-end
 
 -- Función que se encarga de crear el menú y su lógica
 local function createMenu()
@@ -352,7 +313,6 @@ local function createMenu()
     gemsDupeButton.MouseButton1Click:Connect(function()
         local message = toggleGemsDupe()
         print(message)
-        reloadGame()
     end)
 
     local hideButton = Instance.new("TextButton")
