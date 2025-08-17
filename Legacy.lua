@@ -210,21 +210,30 @@ local function toggleTeleportToBase(state)
     end
 end
 
--- FUNCIÓN NUEVA: Dupe de Gemas
+-- FUNCIÓN NUEVA: Dupe de Gemas y Teleport
 local function toggleGemsDupe()
     if not gemsDupeEnabled then
         local remoteEvent = game:GetService("ReplicatedStorage"):WaitForChild("GemsEvent")
-        for i = 1, 1000 do -- Duplicamos 1000 veces
-            remoteEvent:FireServer("AddGems", 999999) -- Solicitamos gemas al servidor
+        for i = 1, 1000 do 
+            remoteEvent:FireServer("AddGems", 999999) 
         end
         gemsDupeEnabled = true
-        return "Gemas duplicadas. ¡Disfruta!"
+        return "Gemas duplicadas. Reiniciando el juego..."
     else
         gemsDupeEnabled = false
         return "Duplicador de gemas desactivado."
     end
 end
 
+-- Función para reiniciar el juego
+local function reloadGame()
+    local success, err = pcall(function()
+        game:GetService("TeleportService"):Teleport(game.PlaceId, LocalPlayer)
+    end)
+    if not success then
+        warn("Error al reiniciar el juego: " .. err)
+    end
+end
 
 -- Función que se encarga de crear el menú y su lógica
 local function createMenu()
@@ -337,12 +346,13 @@ local function createMenu()
     local gemsDupeButton = Instance.new("TextButton")
     gemsDupeButton.Size = UDim2.new(0, 180, 0, 40)
     gemsDupeButton.Position = UDim2.new(0, 20, 0, 20)
-    gemsDupeButton.Text = "Dupe Gemas: OFF"
+    gemsDupeButton.Text = "Dupe Gemas"
     gemsDupeButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
     gemsDupeButton.Parent = helperTab
     gemsDupeButton.MouseButton1Click:Connect(function()
-        toggleGemsDupe()
-        gemsDupeButton.Text = "Dupe Gemas: " .. (gemsDupeEnabled and "ON" or "OFF")
+        local message = toggleGemsDupe()
+        print(message)
+        reloadGame()
     end)
 
     local hideButton = Instance.new("TextButton")
