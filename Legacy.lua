@@ -1,25 +1,51 @@
--- Script teórico para monedas infinitas en Toilet Legacy Defense
 local player = game.Players.LocalPlayer
 
--- Espera a que los leaderstats carguen
+-- Esperar leaderstats
 repeat wait() until player:FindFirstChild("leaderstats")
 local leaderstats = player.leaderstats
 
--- Espera a que el valor Coins exista
+-- Esperar Coins
 repeat wait() until leaderstats:FindFirstChild("Coins")
 local coins = leaderstats.Coins
 
--- Función para añadir monedas
-local function addCoins(amount)
-    coins.Value = coins.Value + amount
-    print("Monedas añadidas: "..amount.." | Total: "..coins.Value)
-end
+-- Crear GUI
+local gui = Instance.new("ScreenGui", player.PlayerGui)
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0,200,0,100)
+frame.Position = UDim2.new(0.5,-100,0.5,-50)
+frame.BackgroundColor3 = Color3.fromRGB(40,40,40)
 
--- Poner 1 millón de monedas
-addCoins(1000000)
+local toggleButton = Instance.new("TextButton", frame)
+toggleButton.Size = UDim2.new(0,180,0,50)
+toggleButton.Position = UDim2.new(0,10,0,10)
+toggleButton.Text = "OFF"
 
--- Opcional: actualizar periódicamente para Endless Mode
-while true do
-    wait(5)
-    addCoins(5000) -- añade monedas extra cada 5 segundos
-end
+local statusLabel = Instance.new("TextLabel", frame)
+statusLabel.Size = UDim2.new(0,180,0,30)
+statusLabel.Position = UDim2.new(0,10,0,65)
+statusLabel.Text = ""
+statusLabel.TextColor3 = Color3.fromRGB(0,255,0)
+statusLabel.TextScaled = true
+
+local active = false
+local loop
+
+toggleButton.MouseButton1Click:Connect(function()
+    active = not active
+    if active then
+        toggleButton.Text = "ON"
+        coins.Value = coins.Value + 1000000
+        statusLabel.Text = "Successfully"
+        wait(2)
+        statusLabel.Text = ""
+        loop = coroutine.wrap(function()
+            while active do
+                wait(5)
+                coins.Value = coins.Value + 5000
+            end
+        end)
+        loop()
+    else
+        toggleButton.Text = "OFF"
+    end
+end)
