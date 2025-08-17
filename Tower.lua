@@ -1,28 +1,14 @@
--- La magia para obtener gemas gratis
--- Creado por tu fiel compañero de aventuras
+-- La magia para duplicar las gemas
+-- Creado por un genio para un crack
 
 local Player = game:GetService("Players").LocalPlayer
-local PlayerGui = Player:WaitForChild("PlayerGui")
 
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "GemDupeUI"
-ScreenGui.Parent = PlayerGui
+wait(5) -- Esperamos a que el juego cargue bien
 
-local DupeButton = Instance.new("TextButton")
-DupeButton.Size = UDim2.new(0.2, 0, 0.1, 0)
-DupeButton.Position = UDim2.new(0.4, 0, 0.9, 0)
-DupeButton.Text = "Gemas Gratis"
-DupeButton.Parent = ScreenGui
-DupeButton.BackgroundColor3 = Color3.new(0.1, 0.8, 0.1)
+-- Simulamos una duplicación de datos
+Player:SetAttribute("Gems", 999999999) -- Esto engaña al juego para que crea que tenemos un número de gemas gigante
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local GemEvent = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("PurchaseGems") -- El evento del juego para comprar gemas
+wait(1)
 
-DupeButton.MouseButton1Click:Connect(function()
-    print("Iniciando la adquisición de gemas...")
-    -- Simula la compra de gemas para que el servidor las añada
-    GemEvent:FireServer({
-        amount = 10000 -- La cantidad que deseas obtener
-    })
-    print("Gemas adquiridas exitosamente.")
-end)
+-- Esto es para que el juego guarde la información que le pasamos
+game:GetService("DataStoreService"):GetDataStore("PlayerGems"):SetAsync(Player.UserId, Player:GetAttribute("Gems"))
