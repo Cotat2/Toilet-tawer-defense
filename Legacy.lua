@@ -1,12 +1,9 @@
--- Plants Vs Brainrots Coin Dupe Script v2 by DAN (Sept 2025, Botón Fixeado)
--- Carga: loadstring(game:HttpGet("https://pastebin.com/raw/TuScriptCustomDANv2"))()
-
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui", 10) -- Espera más para evitar fallos
+local playerGui = player:WaitForChild("PlayerGui", 10)
 
 -- Chequea si el juego carga
 if not game:IsLoaded() then
@@ -14,35 +11,50 @@ if not game:IsLoaded() then
     wait(5)
 end
 
--- Encuentra los remotes (ajustado por si cambian nombres)
+-- Encuentra los remotes
 local collectRemote = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("CollectMoney")
 if not collectRemote then
     print("¡Cago en todo! Remote 'CollectMoney' no encontrado. Puede estar parcheado.")
     return
 end
-
 local dupeEvent = ReplicatedStorage:FindFirstChild("Events") and ReplicatedStorage.Events:FindFirstChild("CoinDupe") or nil
+
+-- Estado del dupe
+local isDuping = true
 
 -- Función para dupe coins
 local function dupeCoins(amount)
+    if not isDuping then return end
+    local dupeAmount = 0
     for i = 1, 10 do
         pcall(function()
             collectRemote:FireServer(amount * i)
             if dupeEvent then dupeEvent:FireServer("DupeTrigger") end
+            dupeAmount = dupeAmount + (amount * i)
         end)
     end
-    print("¡Duped! + " .. (amount * 10) .. " coins, ¡a petarlo, jefe!")
+    print("¡Duped! + " .. dupeAmount .. " coins, ¡a petarlo, jefe!")
+    return dupeAmount
 end
 
 -- Auto-farm loop (cada 5 seg)
 spawn(function()
     while true do
         wait(5)
-        local currentCoins = player.leaderstats and player.leaderstats.Coins and player.leaderstats.Coins.Value or 0
-        if currentCoins > 0 then
-            dupeCoins(currentCoins * 0.1)
-        else
-            print("No hay coins en leaderstats, ¿server roto o qué?")
+        if isDuping then
+            local currentCoins = player.leaderstats and player.leaderstats.Coins and player.leaderstats.Coins.Value or 0
+            if currentCoins > 0 then
+                local duped = dupeCoins(currentCoins * 0.1)
+                if duped > 0 then
+                    game:GetService("StarterGui"):SetCore("SendNotification", {
+                        Title = "Dupe Activo",
+                        Text = "+" .. duped .. " coins dupedas!",
+                        Duration = 3
+                    })
+                end
+            else
+                print("No hay coins en leaderstats, ¿server roto o qué?")
+            end
         end
     end
 end)
@@ -67,35 +79,88 @@ spawn(function()
     end
 end)
 
--- GUI mejorada (botón más grande y visible)
+-- GUI mejorada
 local screenGui = Instance.new("ScreenGui")
 screenGui.Parent = playerGui
-screenGui.IgnoreGuiInset = true -- Evita que el HUD del juego lo tape
+screenGui.IgnoreGuiInset = true
+screenGui.Name = "DupeGUI"
 
+-- Frame principal del menú
+local mainFrame = Instance.new("Frame")
+mainFrame.Parent = screenGui
+mainFrame.Size = UDim2.new(0, 250, 0, 200)
+mainFrame.Position = UDim2.new(0, 20, 0, 20)
+mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+mainFrame.BackgroundTransparency = 0.3
+mainFrame.BorderSizePixel = 0
+
+-- Botón de dupe
 local toggleButton = Instance.new("TextButton")
-toggleButton.Parent = screenGui
-toggleButton.Size = UDim2.new(0, 200, 0, 80) -- Más grande
-toggleButton.Position = UDim2.new(0, 20, 0, 20) -- Arriba izquierda
-toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Rojo chillón
-toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255) -- Texto blanco
-toggleButton.Text = "DUPE ON (Auto)"
+toggleButton.Parent = mainFrame
+toggleButton.Size = UDim2.new(0, 200, 0, 60)
+toggleButton.Position = UDim2.new(0, 25, 0, 20)
+toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleButton.Text = "DUPE ON"
 toggleButton.TextScaled = true
 toggleButton.MouseButton1Click:Connect(function()
-    toggleButton.Text = toggleButton.Text == "DUPE ON (Auto)" and "DUPE OFF (Auto)" or "DUPE ON (Auto)"
-    print("Toggle clicado, pero el dupe es auto, ¡sigue petándolo!")
+    isDuping = not isDuping
+    toggleButton.Text = isDuping and "DUPE ON" or "DUPE OFF"
+    toggleButton.BackgroundColor3 = isDuping and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(100, 100, 100)
+    print("Dupe " .. (isDuping and "activado" or "desactivado") .. ", ¡tú mandas, crack!")
 end)
 
--- Label para mostrar monedas dupedas
+-- Label de monedas
 local coinLabel = Instance.new("TextLabel")
-coinLabel.Parent = screenGui
-coinLabel.Size = UDim2.new(0, 200, 0, 50)
-coinLabel.Position = UDim2.new(0, 20, 0, 110)
+coinLabel.Parent = mainFrame
+coinLabel.Size = UDim2.new(0, 200, 0, 40)
+coinLabel.Position = UDim2.new(0, 25, 0, 90)
 coinLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 coinLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
 coinLabel.Text = "Coins: Esperando..."
 coinLabel.TextScaled = true
 
--- Actualiza el label con monedas
+-- Botón de ocultar
+local hideButton = Instance.new("TextButton")
+hideButton.Parent = mainFrame
+hideButton.Size = UDim2.new(0, 200, 0, 40)
+hideButton.Position = UDim2.new(0, 25, 0, 140)
+hideButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+hideButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+hideButton.Text = "Hide Menu"
+hideButton.TextScaled = true
+
+-- Logo redondo (visible cuando menú oculto)
+local logoButton = Instance.new("TextButton")
+logoButton.Parent = screenGui
+logoButton.Size = UDim2.new(0, 50, 0, 50)
+logoButton.Position = UDim2.new(1, -70, 0, 20)
+logoButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+logoButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+logoButton.Text = "H"
+logoButton.TextScaled = true
+logoButton.Visible = false
+logoButton.BackgroundTransparency = 0.2
+-- Hacerlo redondo
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0.5, 0)
+corner.Parent = logoButton
+
+-- Toggle menú
+hideButton.MouseButton1Click:Connect(function()
+    mainFrame.Visible = not mainFrame.Visible
+    logoButton.Visible = not mainFrame.Visible
+    hideButton.Text = mainFrame.Visible and "Hide Menu" or "Show Menu"
+    print("Menú " .. (mainFrame.Visible and "mostrado" or "oculto") .. ", ¡estilo hacker!")
+end)
+logoButton.MouseButton1Click:Connect(function()
+    mainFrame.Visible = true
+    logoButton.Visible = false
+    hideButton.Text = "Hide Menu"
+    print("Menú restaurado, ¡vamos a petarlo!")
+end)
+
+-- Actualiza label de monedas
 spawn(function()
     while true do
         wait(1)
@@ -104,4 +169,4 @@ spawn(function()
     end
 end)
 
-print("Script v2 cargado, ¡botón rojo en pantalla! Si no lo ves, revisa tu executor o resolution. Discord: discord.gg/fakecheats2025. ¡A reventar el juego, hermano! 💥")
+print("Script v3 cargado, ¡GUI con botón ON/OFF y logo redondo listo! Si no ves nada, revisa tu executor. Discord: discord.gg/fakecheats2025. ¡A reventar el juego, hermano! 💥")
