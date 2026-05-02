@@ -1,4 +1,4 @@
--- █ MENU COMPLETO 2026 - FLY + INVISIBLE + FLING + NOCLIP + TELEPORT █
+-- █ MENU COMPLETO - FLY + INVISIBLE + FLING + NOCLIP + TELEPORT █
 -- Ejecuta con Delta Executor
 
 local Players = game:GetService("Players")
@@ -17,7 +17,7 @@ local noclip = false
 local autoFling = false
 local speed = 92
 
--- Variables clon y fling
+-- Variables clon
 local fakeClone = nil
 local desyncConn = nil
 
@@ -39,7 +39,7 @@ MiniButton.Draggable = true
 MiniButton.Parent = ScreenGui
 
 local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 360, 0, 420)
+Frame.Size = UDim2.new(0, 360, 0, 450)
 Frame.Position = UDim2.new(0.5, -180, 0.2, 0)
 Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 Frame.BorderSizePixel = 0
@@ -126,15 +126,15 @@ MiniButton.MouseButton1Click:Connect(function()
     Frame.Visible = not Frame.Visible
 end)
 
--- === AUTO FLING (lanza a la gente volando) ===
+-- === AUTO FLING (lanza a la gente volando lejos) ===
 RS.Heartbeat:Connect(function()
     if not autoFling then return end
     for _, target in pairs(Players:GetPlayers()) do
         if target ~= plr and target.Character then
             local tRoot = target.Character:FindFirstChild("HumanoidRootPart")
-            if tRoot and (tRoot.Position - root.Position).Magnitude < 12 then
-                tRoot.AssemblyLinearVelocity = root.CFrame.LookVector * 600 + Vector3.new(0, 400, math.random(-100,100))
-                tRoot.AssemblyAngularVelocity = Vector3.new(math.random(-500,500), math.random(-800,800), math.random(-500,500))
+            if tRoot and (tRoot.Position - root.Position).Magnitude < 15 then
+                tRoot.AssemblyLinearVelocity = root.CFrame.LookVector * 650 + Vector3.new(0, 450, math.random(-150,150))
+                tRoot.AssemblyAngularVelocity = Vector3.new(math.random(-600,600), math.random(-900,900), math.random(-600,600))
             end
         end
     end
@@ -174,7 +174,7 @@ UIS.InputBegan:Connect(function(input)
     end
 end)
 
-print("✅ MENÚ CON TODOS LOS HACKS CARGADO")
+print("✅ MENÚ CON FLING CARGADO")
 print("   Clic en el cuadradito para abrir")
-print("   F=Fly | I=Invisible | N=Noclip | G=Auto Fling")
+print("   F = Fly | I = Invisible | N = Noclip | G = Auto Fling")
 print("   Clic Derecho = Teleport")
