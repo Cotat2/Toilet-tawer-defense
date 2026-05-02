@@ -1,22 +1,25 @@
--- Script de Fling Universal
+local RunService = game:GetService("RunService")
 local Player = game.Players.LocalPlayer
 local Character = Player.Character or Player.CharacterAdded:Wait()
-local Humanoid = Character:WaitForChild("Humanoid")
 local RootPart = Character:WaitForChild("HumanoidRootPart")
 
--- Crear la fuerza de rotación (lo que empuja a los demás)
-local Velocity = Instance.new("AngularVelocity")
-Velocity.Name = "FlingForce"
-Velocity.Parent = RootPart
-Velocity.MaxTorque = math.huge
-Velocity.AngularVelocity = Vector3.new(0, 99999, 0) -- Rotación extrema
-Velocity.Attachment0 = RootPart:WaitForChild("RootAttachment")
+-- Creamos un objeto de fuerza física
+local BodyAngularVelocity = Instance.new("BodyAngularVelocity")
+BodyAngularVelocity.Parent = RootPart
+BodyAngularVelocity.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+BodyAngularVelocity.AngularVelocity = Vector3.new(0, 99999, 0) -- Aquí está el giro loco
 
--- Hacer que tu personaje sea "intocable" para no morir tú
-for _, part in pairs(Character:GetDescendants()) do
-    if part:IsA("BasePart") then
-        part.CanCollide = false
+-- Bucle para asegurar que las colisiones no te detengan a ti
+local FlingLoop = RunService.Stepped:Connect(function()
+    for _, part in pairs(Character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = false -- Esto es vital para no salir volando tú
+            -- Le damos una velocidad pequeña pero constante para "glitchear" la física
+            part.Velocity = Vector3.new(99, 99, 99) 
+        end
     end
-end
+end)
 
-print("Fling activado. ¡Toca a alguien para que salga volando!")
+print("¡Fling Activo! Ahora sí deberías estar girando como un tornado.")
+
+-- Si quieres detenerlo, puedes escribir en la consola: FlingLoop:Disconnect()
