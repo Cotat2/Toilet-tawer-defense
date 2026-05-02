@@ -1,30 +1,31 @@
--- Obtener el Humanoid del jugador local
-local Player = game.Players.LocalPlayer
-local Character = Player.Character or Player.CharacterAdded:Wait()
-local Humanoid = Character:WaitForChild("Humanoid")
+local p = game.Players.LocalPlayer
+local c = p.Character or p.CharacterAdded:Wait()
+local root = c:WaitForChild("HumanoidRootPart")
+local hum = c:WaitForChild("Humanoid")
 
--- Lista de estados que suelen tumbar al personaje
-local statesToDisable = {
-	Enum.HumanoidStateType.FallingDown,
-	Enum.HumanoidStateType.PlatformStanding,
-	Enum.HumanoidStateType.Physics,
-	Enum.HumanoidStateType.Ragdoll -- Si el juego lo usa
-}
-
--- Bucle para desactivar estos estados
-for _, stateType in pairs(statesToDisable) do
-	Humanoid:SetStateEnabled(stateType, false)
+-- 1. Limpiar todo lo anterior para que no haya conflictos
+for _, v in pairs(root:GetChildren()) do
+    if v:IsA("BodyVelocity") or v:IsA("BodyAngularVelocity") then v:Destroy() end
 end
 
--- Asegurar que el estado actual no sea uno de los prohibidos
-if table.find(statesToDisable, Humanoid:GetState()) then
-	Humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
-end
+-- 2. El Giro (Fling)
+local bgv = Instance.new("BodyAngularVelocity")
+bgv.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+bgv.AngularVelocity = Vector3.new(0, 9500, 0)
+bgv.Parent = root
 
--- Un bucle extra para juegos muy agresivos con ragdolls
+-- 3. Estabilizador (Para no subir como cohete ni hundirte)
+local bv = Instance.new("BodyVelocity")
+bv.MaxForce = Vector3.new(0, math.huge, 0)
+bv.Velocity = Vector3.new(0, 0, 0) -- Velocidad 0 para quedarte pegado al suelo
+bv.Parent = root
+
+-- 4. Anti-Tumbado y Colisiones
 game:GetService("RunService").Stepped:Connect(function()
-    Humanoid.PlatformStand = false
-    Humanoid.Sit = false -- Por si acaso
+    hum.PlatformStand = false
+    for _, part in pairs(c:GetDescendants()) do
+        if part:IsA("BasePart") then part.CanCollide = false end
+    end
 end)
 
-print("Anti-Tumbado activado. Ya no deberías quedarte pegado al suelo.")
+print("Script reiniciado y estabilizado.")
