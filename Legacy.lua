@@ -1,9 +1,10 @@
--- █ MENU MINIMIZABLE STEALTH 2026 - Fly + Invisible Desync + Teleport █
+-- █ ULTRA STEALTH ADMIN MENU 2026 - CFrame Interpolation + Desync + MENU MINIMIZABLE █
 -- Ejecuta con Delta Executor
 
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
 local RS = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 local plr = Players.LocalPlayer
 local mouse = plr:GetMouse()
 
@@ -14,21 +15,20 @@ local hum = char:WaitForChild("Humanoid")
 local flying = false
 local desynced = false
 local speed = 92
+local lastFloorFake = tick()
 
--- Variables para clon y desync
-local fakeClone = nil
-local desyncConn = nil
-
--- === GUI MINIMIZABLE ===
+-- === PROTECT GUI + NOMBRES RANDOM ===
+local guiName = "UI_" .. string.format("%x", math.random(100000000, 999999999))
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "UI_" .. math.random(100000,999999)
+ScreenGui.Name = guiName
 ScreenGui.ResetOnSpawn = false
+if syn and syn.protect_gui then syn.protect_gui(ScreenGui) end
 ScreenGui.Parent = plr:WaitForChild("PlayerGui")
 
--- Cuadradito minimizado (siempre visible)
+-- === CUADRADITO MINIMIZADO ===
 local MiniButton = Instance.new("TextButton")
-MiniButton.Size = UDim2.new(0, 50, 0, 50)
-MiniButton.Position = UDim2.new(0, 20, 0.5, -25)
+MiniButton.Size = UDim2.new(0, 55, 0, 55)
+MiniButton.Position = UDim2.new(0, 30, 0.4, 0)
 MiniButton.BackgroundColor3 = Color3.fromRGB(255, 0, 100)
 MiniButton.Text = "🔥"
 MiniButton.TextScaled = true
@@ -38,97 +38,108 @@ MiniButton.Active = true
 MiniButton.Draggable = true
 MiniButton.Parent = ScreenGui
 
--- Menú principal
-local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 340, 0, 320)
-MainFrame.Position = UDim2.new(0.5, -170, 0.3, 0)
-MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-MainFrame.BorderSizePixel = 0
-MainFrame.Visible = false
-MainFrame.Active = true
-MainFrame.Draggable = true
-MainFrame.Parent = ScreenGui
+-- === MENÚ PRINCIPAL ===
+local Frame = Instance.new("Frame")
+Frame.Name = "F_" .. string.format("%x", math.random(100000000, 999999999))
+Frame.Size = UDim2.new(0, 340, 0, 300)
+Frame.Position = UDim2.new(0.5, -170, 0.3, 0)
+Frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+Frame.BorderSizePixel = 0
+Frame.Active = true
+Frame.Draggable = true
+Frame.Visible = false
+Frame.Parent = ScreenGui
 
 local Title = Instance.new("TextLabel")
+Title.Name = "T_" .. string.format("%x", math.random(100000000, 999999999))
 Title.Size = UDim2.new(1, 0, 0, 45)
 Title.BackgroundColor3 = Color3.fromRGB(255, 0, 80)
-Title.Text = "🔥 STEALTH ADMIN MENU"
+Title.Text = "🔥 ULTRA STEALTH ADMIN"
 Title.TextColor3 = Color3.new(1,1,1)
 Title.TextScaled = true
 Title.Font = Enum.Font.GothamBold
-Title.Parent = MainFrame
+Title.Parent = Frame
 
--- Botones del menú
-local function createButton(text, posY, callback)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0.9, 0, 0, 45)
-    btn.Position = UDim2.new(0.05, 0, posY, 0)
-    btn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-    btn.Text = text
-    btn.TextColor3 = Color3.new(1,1,1)
-    btn.TextScaled = true
-    btn.Font = Enum.Font.Gotham
-    btn.Parent = MainFrame
-    btn.MouseButton1Click:Connect(callback)
-    return btn
-end
+-- Botones
+local FlyButton = Instance.new("TextButton")
+FlyButton.Name = "B1_" .. string.format("%x", math.random(100000000, 999999999))
+FlyButton.Size = UDim2.new(0.9, 0, 0, 45)
+FlyButton.Position = UDim2.new(0.05, 0, 0.22, 0)
+FlyButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+FlyButton.Text = "🟢 FLY STEALTH ACTIVADO"
+FlyButton.TextColor3 = Color3.new(1,1,1)
+FlyButton.TextScaled = true
+FlyButton.Font = Enum.Font.Gotham
+FlyButton.Parent = Frame
 
-local FlyBtn = createButton("🟢 FLY STEALTH", 0.18, function()
+local DesyncButton = Instance.new("TextButton")
+DesyncButton.Name = "B2_" .. string.format("%x", math.random(100000000, 999999999))
+DesyncButton.Size = UDim2.new(0.9, 0, 0, 45)
+DesyncButton.Position = UDim2.new(0.05, 0, 0.42, 0)
+DesyncButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+DesyncButton.Text = "🟢 INVISIBLE DESYNC + CLON ACTIVADO"
+DesyncButton.TextColor3 = Color3.new(1,1,1)
+DesyncButton.TextScaled = true
+DesyncButton.Font = Enum.Font.Gotham
+DesyncButton.Parent = Frame
+
+local CloseButton = Instance.new("TextButton")
+CloseButton.Name = "X_" .. string.format("%x", math.random(100000000, 999999999))
+CloseButton.Size = UDim2.new(0, 35, 0, 35)
+CloseButton.Position = UDim2.new(1, -40, 0, 5)
+CloseButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+CloseButton.Text = "✕"
+CloseButton.TextColor3 = Color3.new(1,1,1)
+CloseButton.Parent = Frame
+
+-- === FLY STEALTH: CFrame Interpolation + Humanización ===
+local function lerp(a, b, t) return a + (b - a) * t end
+
+local function toggleFly()
     flying = not flying
     hum.PlatformStand = flying
-    FlyBtn.Text = flying and "🔴 FLY STEALTH OFF" or "🟢 FLY STEALTH ON"
-end)
+    FlyButton.Text = flying and "🔴 FLY STEALTH DESACTIVADO" or "🟢 FLY STEALTH ACTIVADO"
+    FlyButton.BackgroundColor3 = flying and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(30, 30, 30)
+end
 
-local InvBtn = createButton("🟢 INVISIBLE DESYNC", 0.35, function()
+-- === INVISIBLE DESYNC + CLON LOCAL ===
+local fakeClone = nil
+local desyncConnection = nil
+
+local function toggleDesync()
     desynced = not desynced
     if desynced then
-        -- Rompemos joints del real
-        for _, m in pairs(char:GetDescendants()) do
-            if m:IsA("Motor6D") then m:Destroy() end
-        end
-        -- Real invisible para otros
-        for _, p in pairs(char:GetDescendants()) do
-            if p:IsA("BasePart") then p.Transparency = 1; p.CanCollide = false end
-        end
-        -- Clon local
+        local oldCFrame = root.CFrame
+        root.CFrame = CFrame.new(0, 5000, 0)
+        
         fakeClone = char:Clone()
         for _, v in pairs(fakeClone:GetDescendants()) do
-            if v:IsA("BasePart") then v.Transparency = 0 end
             if v:IsA("Script") or v:IsA("LocalScript") then v:Destroy() end
+            if v:IsA("BasePart") then
+                v.Transparency = 0
+                v.CanCollide = false
+            end
         end
         fakeClone.Parent = plr.PlayerGui
-        desyncConn = RS.RenderStepped:Connect(function()
+        
+        desyncConnection = RS.RenderStepped:Connect(function()
             if fakeClone and fakeClone:FindFirstChild("HumanoidRootPart") then
-                fakeClone.HumanoidRootPart.CFrame = root.CFrame
+                fakeClone.HumanoidRootPart.CFrame = oldCFrame
             end
         end)
-        InvBtn.Text = "🔴 INVISIBLE DESYNC OFF"
+        
+        DesyncButton.Text = "🔴 INVISIBLE DESYNC DESACTIVADO"
+        DesyncButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
     else
-        if desyncConn then desyncConn:Disconnect() end
+        if desyncConnection then desyncConnection:Disconnect() end
         if fakeClone then fakeClone:Destroy() end
-        InvBtn.Text = "🟢 INVISIBLE DESYNC ON"
+        fakeClone = nil
+        DesyncButton.Text = "🟢 INVISIBLE DESYNC + CLON ACTIVADO"
+        DesyncButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     end
-end)
+end
 
-local TpLabel = Instance.new("TextLabel")
-TpLabel.Size = UDim2.new(0.9, 0, 0, 35)
-TpLabel.Position = UDim2.new(0.05, 0, 0.55, 0)
-TpLabel.BackgroundTransparency = 1
-TpLabel.Text = "Clic Derecho = Teleport (solo volando)"
-TpLabel.TextColor3 = Color3.new(0.7,0.7,0.7)
-TpLabel.TextScaled = true
-TpLabel.Parent = MainFrame
-
-local CloseBtn = createButton("Minimizar", 0.72, function()
-    MainFrame.Visible = false
-end)
-
--- Toggle del menú con el cuadradito
-MiniButton.MouseButton1Click:Connect(function()
-    MainFrame.Visible = not MainFrame.Visible
-end)
-
--- Fly + Teleport + Humanización
+-- LOOP PRINCIPAL
 RS.RenderStepped:Connect(function(dt)
     if not flying then return end
     local cam = workspace.CurrentCamera
@@ -141,23 +152,51 @@ RS.RenderStepped:Connect(function(dt)
     if UIS:IsKeyDown(Enum.KeyCode.Space) then move += Vector3.new(0,1,0) end
     if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then move -= Vector3.new(0,1,0) end
     
-    if move.Magnitude > 0 then
-        move = move.Unit
-    end
+    if move.Magnitude > 0 then move = move.Unit end
     
-    local currentSpeed = speed + math.random(-8,8)
-    local target = root.Position + move * currentSpeed * dt * 55
-    root.CFrame = CFrame.new(
-        root.Position:Lerp(target, 0.4)
-    )
+    local currentSpeed = speed + math.random(-7, 7)
+    local targetPos = root.Position + move * currentSpeed * dt * 60
+    root.CFrame = CFrame.new(lerp(root.Position.X, targetPos.X, 0.35),
+                             lerp(root.Position.Y, targetPos.Y, 0.35),
+                             lerp(root.Position.Z, targetPos.Z, 0.35))
+    
+    if tick() - lastFloorFake > 0.5 then
+        hum.FloorMaterial = Enum.Material.Grass
+        lastFloorFake = tick()
+    end
 end)
 
+-- TELEPORT
 mouse.Button2Down:Connect(function()
     if not flying then return end
     local ray = workspace:Raycast(mouse.UnitRay.Origin, mouse.UnitRay.Direction * 1000)
-    if ray then root.CFrame = CFrame.new(ray.Position + Vector3.new(0,5,0)) end
+    if ray then
+        root.CFrame = CFrame.new(ray.Position + Vector3.new(0, 5, 0))
+    end
 end)
 
-print("✅ MENÚ MINIMIZABLE CARGADO - Cuadradito en pantalla")
-print("   Clic en el cuadradito 🔥 para abrir/cerrar")
-print("   Dentro: Fly, Invisible Desync, Teleport")
+-- Controles
+FlyButton.MouseButton1Click:Connect(toggleFly)
+DesyncButton.MouseButton1Click:Connect(toggleDesync)
+
+UIS.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.F then toggleFly()
+    elseif input.KeyCode == Enum.KeyCode.I then toggleDesync()
+    elseif input.KeyCode == Enum.KeyCode.Q then speed = speed + 15
+    elseif input.KeyCode == Enum.KeyCode.E then speed = math.max(60, speed - 15)
+    end
+end)
+
+CloseButton.MouseButton1Click:Connect(function()
+    Frame.Visible = false
+end)
+
+-- Toggle menú con el cuadradito
+MiniButton.MouseButton1Click:Connect(function()
+    Frame.Visible = not Frame.Visible
+end)
+
+print("✅ MENÚ MINIMIZABLE CARGADO")
+print("   Clic en el cuadradito 🔥 para abrir/cerrar el menú")
+print("   F = Fly | I = Invisible Desync | Clic Derecho = Teleport")
+print("Todo lo que tenías antes sigue funcionando + menú minimizable 😈")
