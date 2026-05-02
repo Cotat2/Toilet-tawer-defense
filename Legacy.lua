@@ -1,34 +1,30 @@
+-- Obtener el Humanoid del jugador local
 local Player = game.Players.LocalPlayer
 local Character = Player.Character or Player.CharacterAdded:Wait()
-local Root = Character:WaitForChild("HumanoidRootPart")
+local Humanoid = Character:WaitForChild("Humanoid")
 
--- 1. Limpieza total de fuerzas anteriores (¡Importante!)
-for _, v in pairs(Root:GetChildren()) do
-    if v:IsA("BodyAngularVelocity") or v:IsA("BodyVelocity") then
-        v:Destroy()
-    end
+-- Lista de estados que suelen tumbar al personaje
+local statesToDisable = {
+	Enum.HumanoidStateType.FallingDown,
+	Enum.HumanoidStateType.PlatformStanding,
+	Enum.HumanoidStateType.Physics,
+	Enum.HumanoidStateType.Ragdoll -- Si el juego lo usa
+}
+
+-- Bucle para desactivar estos estados
+for _, stateType in pairs(statesToDisable) do
+	Humanoid:SetStateEnabled(stateType, false)
 end
 
--- 2. Fuerza de Giro (Fling) - Un poco más controlada
-local BV = Instance.new("BodyAngularVelocity")
-BV.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-BV.AngularVelocity = Vector3.new(0, 8000, 0) -- Girar, pero no a velocidad luz
-BV.Parent = Root
+-- Asegurar que el estado actual no sea uno de los prohibidos
+if table.find(statesToDisable, Humanoid:GetState()) then
+	Humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+end
 
--- 3. Estabilizador Vertical (¡ESTA ES LA MEJORA!)
-local VelocityFix = Instance.new("BodyVelocity")
-VelocityFix.MaxForce = Vector3.new(0, math.huge, 0) -- SOLO actúa en el eje Y (arriba/abajo)
-VelocityFix.Velocity = Vector3.new(0, 0.1, 0) -- Fuerza mínima hacia arriba para no hundirte, pero no subes
-VelocityFix.Parent = Root
-
--- 4. Bucle de colisiones para atravesar jugadores
-local RunService = game:GetService("RunService")
-RunService.Stepped:Connect(function()
-    for _, part in pairs(Character:GetDescendants()) do
-        if part:IsA("BasePart") then
-            part.CanCollide = false -- Evita que te mates tú
-        end
-    end
+-- Un bucle extra para juegos muy agresivos con ragdolls
+game:GetService("RunService").Stepped:Connect(function()
+    Humanoid.PlatformStand = false
+    Humanoid.Sit = false -- Por si acaso
 end)
 
-print("Fling Corregido Activado. Deberías girar y no subir sin parar.")
+print("Anti-Tumbado activado. Ya no deberías quedarte pegado al suelo.")
